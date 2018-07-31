@@ -5,6 +5,7 @@
 #include "csapp.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <strings.h>
 
 /* Recommended max cache and object sizes */
 #define MAX_CACHE_SIZE (1024*1024)
@@ -22,9 +23,9 @@ static const char *proxy_connection_hdr = "Proxy-Connection: close\r\n";
 void SIGPIPE_HNDLR(int sig);
 void *thread(void* vargp);
 void process_request(int connfd);
-int generate_request(rio_t *rio, char *request, char *host, char *uri, int *def_port);
+int create_requesthdrs(rio_t *rio, char *request, char *host, char *uri, int *def_port);
 void parse_uri(char *uri, char *host, int *port_in_url, char *uri_without_host);
-void get_key_value(char *header, char *key, char *value);
+void get_other_header(char *header, char *key, char *value);
 void get_host_port_header(char *value, char *host, int *port_in_header);
 void client_error(int fd, char *cause, char *errnum, char *shortmsg, char *longmsg);
 
@@ -32,7 +33,7 @@ void client_error(int fd, char *cause, char *errnum, char *shortmsg, char *longm
 /* Function to handle SIGPIPE signals
 * I just printing handled statement by calling this function.
 */ 
-void SIGPIPE_HNDLR(int sig)
+void SIGPIPE_HNDLR()
 {
     printf(" The SIGPIPE signal is caught!\n");
     return;
@@ -59,7 +60,7 @@ int main(int argc, char** argv)
 	
 	Signal(SIGPIPE,SIGPIPE_HNDLR);
 	
-	listenfd=Open_listenfd(port);
+	listenfd=Open_listenfd(argv[1]);
 	
 	while(1)
 	{
@@ -104,8 +105,9 @@ void *thread(void* vargp)
 */
 void process_request(int connfd)
 {
-	int serverfd;
+	int server_fd;
 	int def_port=80;
+	char *defport;
 	rio_t crio,srio;
 	
 	char *uri = Malloc(MAXLINE * sizeof(char));
@@ -123,7 +125,8 @@ void process_request(int connfd)
 		free(host);
 		return;
 	}
-	server_fd=Open_clientfd(host,def_port);
+	itoa(def_port,defport,10)
+	server_fd=Open_clientfd(host,defport);
 	if(server_fd < 0)
 	{
 		printf("Couldn't connect to the server with given host %s and def_port %d \n",host,def_port);
@@ -135,7 +138,7 @@ void process_request(int connfd)
 	}
 	Rio_readinitb(&srio, server_fd);
 	
-	if ((size_t) rio_writen(server_fd, request, strlen(request)) != n) 
+	if ((size_t) rio_writen(server_fd, request, strlen(request)) != strlen(request)) 
 	{
         unix_error("Rio_writen error");
 		if(errno==EPIPE)
@@ -148,7 +151,7 @@ void process_request(int connfd)
     }
 	ssize_t nread;
 	char temp[MAX_OBJECT_SIZE];
-	while( (nread=Rio_readnb(&srio,temp,MAX_OBJECT_SIZE))!=0 )
+	while( (nread=Rio_readnb(&srio,temp,MAX_OBJECT_SIZE))!= 0 )
 	{
 		if( nread < 0 )
 		{
@@ -158,7 +161,7 @@ void process_request(int connfd)
 			free(host);
 			return;
 		}
-		if ((size_t) rio_writen(connfd,temp,nread) != nread) 
+		if ((ssize_t) rio_writen(connfd,temp,nread) != nread) 
 		{
 			unix_error("Rio_writen error");
 			if(errno==EPIPE)
@@ -205,7 +208,7 @@ int create_requesthdrs(rio_t *rio, char *request, char *host, char *uri, int *de
 		return 0;
 	
 	//call function to separate host, uri, port
-	parse_uri(uri,host,port_in_url,uri_without_host);
+	parse_uri(uri,host,&port_in_url,uri_without_host);
 	printf("Passed values are %s %s %s %d %s \n", uri, method, host, port_in_url, uri_without_host);
 	sprintf(request,"%s %s %s",method,uri_without_host,default_version);
 	
@@ -257,7 +260,7 @@ void parse_uri(char *uri, char *host, int *port_in_url, char *uri_without_host)
 	host_start_ptr=strstr(uri,"http://");
 	if(host_start_ptr==NULL)
 	{
-		strcpy(uri_without,uri);
+		strcpy(uri_without_host,uri);
 	}
 	else
 	{
@@ -286,7 +289,7 @@ void parse_uri(char *uri, char *host, int *port_in_url, char *uri_without_host)
 }
 
 //Helper functions to get name and value of passed headers
-void get_key_value(char *header, char *key, char *value)
+void get_other_header(char *header, char *key, char *value)
 {
 	char *colon,*end;
 	colon=strchr(header,':');
@@ -299,7 +302,7 @@ void get_key_value(char *header, char *key, char *value)
 		end=strstr(header,"\r");
 		*end=0;
 		strcpy(value,colon+2);
-		*end="\r";
+		*end='\r';
 	}
 }
 
@@ -316,7 +319,7 @@ void get_host_port_header(char *value, char *host, int *port_in_header)
 	{
 		*colon=0;
 		strcpy(host,value);
-		*colon=:;
+		*colon=':';
 		strcpy(port_val,colon+1);
 		*port_in_header=atoi(port_val);
 	}
