@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <strings.h>
+#include <string.h>
 
 /* Recommended max cache and object sizes */
 #define MAX_CACHE_SIZE (1024*1024)
@@ -20,7 +21,7 @@ static const char *connection_hdr = "Connection: close\r\n";
 static const char *proxy_connection_hdr = "Proxy-Connection: close\r\n";
 
 /* Helper functions */
-void SIGPIPE_HNDLR(int sig);
+void SIGPIPE_HNDLR();
 void *thread(void* vargp);
 void process_request(int connfd);
 int create_requesthdrs(rio_t *rio, char *request, char *host, char *uri, int *def_port);
@@ -41,7 +42,7 @@ void SIGPIPE_HNDLR()
 
 int main(int argc, char** argv)
 {
-	int listenfd,port,*connfdp;
+	int listenfd,*connfdp;
 	socklen_t clientlen;
 	struct sockaddr_storage clientaddr;
 	pthread_t tid;
@@ -55,8 +56,6 @@ int main(int argc, char** argv)
         fprintf(stderr, "usage: %s <port>\n", argv[0]);
         exit(1);
     }
-	
-	port=atoi(argv[1]);
 	
 	Signal(SIGPIPE,SIGPIPE_HNDLR);
 	
@@ -125,7 +124,7 @@ void process_request(int connfd)
 		free(host);
 		return;
 	}
-	itoa(def_port,defport,10)
+	itoa(def_port,defport,10);
 	server_fd=Open_clientfd(host,defport);
 	if(server_fd < 0)
 	{
