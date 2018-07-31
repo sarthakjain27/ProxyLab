@@ -24,6 +24,10 @@ void *thread(void* vargp);
 void process_request(int connfd);
 int generate_request(rio_t *rio, char *request, char *host, char *uri, int *def_port);
 void parse_uri(char *uri, char *host, int *port_in_url, char *uri_without_host);
+void get_key_value(char *header, char *key, char *value);
+void get_host_port_header(char *value, char *host, int *port_in_header);
+void client_error(int fd, char *cause, char *errnum, char *shortmsg, char *longmsg);
+
 
 /* Function to handle SIGPIPE signals
 * I just printing handled statement by calling this function.
@@ -108,7 +112,7 @@ void process_request(int connfd)
     char *request = Malloc(MAXLINE * sizeof(char));
     char *host = Malloc(MAXLINE * sizeof(char));
 	
-	Rio_readinitb(&client_rio, connfd);
+	Rio_readinitb(&crio, connfd);
 	
 	// Create request hdrs to be sent to server
 	int isGet_rqst=create_requesthdrs(&crio, request, host, uri, &def_port);
@@ -123,13 +127,49 @@ void process_request(int connfd)
 	if(server_fd < 0)
 	{
 		printf("Couldn't connect to the server with given host %s and def_port %d \n",host,def_port);
+		client_error(connfd,host,"404","Page Not Found","Built Proxy couldn't connect to this server");
 		free(uri);
 		free(request);
 		free(host);
 		return;
 	}
-	Rio_readinitb(&client_rio, server_fd);
+	Rio_readinitb(&srio, server_fd);
 	
+	if ((size_t) rio_writen(server_fd, request, strlen(request)) != n) 
+	{
+        unix_error("Rio_writen error");
+		if(errno==EPIPE)
+			printf("Server closed %s \n",strerror(errno));
+		Close(server_fd);
+		free(uri);
+		free(request);
+		free(host);
+		return;
+    }
+	ssize_t nread;
+	char temp[MAX_OBJECT_SIZE];
+	while( (nread=Rio_readnb(&srio,temp,MAX_OBJECT_SIZE))!=0 )
+	{
+		if( nread < 0 )
+		{
+			client_error(connfd,host,"404","Page Not Found","Built Proxy couldn't connect to this server");
+			free(uri);
+			free(request);
+			free(host);
+			return;
+		}
+		if ((size_t) rio_writen(connfd,temp,nread) != nread) 
+		{
+			unix_error("Rio_writen error");
+			if(errno==EPIPE)
+				printf("Server closed %s \n",strerror(errno));
+		}
+	}
+	Close(server_fd);
+	free(uri);
+	free(request);
+	free(host);
+	return;
 }
 
 /* This function reads in the url entered by the user
@@ -280,4 +320,25 @@ void get_host_port_header(char *value, char *host, int *port_in_header)
 		strcpy(port_val,colon+1);
 		*port_in_header=atoi(port_val);
 	}
+}
+
+void client_error(int fd, char *cause, char *errnum, char *shortmsg, char *longmsg)
+{
+    char buf[MAXLINE], body[MAXLINE];
+
+    /* Build the HTTP response body */
+    sprintf(body, "<html><title>Request Error</title>");
+    sprintf(body, "%s<body bgcolor=""ffffff"">\r\n", body);
+    sprintf(body, "%s%s: %s\r\n", body, errnum, shortmsg);
+    sprintf(body, "%s<p>%s: %s\r\n", body, longmsg, cause);
+    sprintf(body, "%s<hr><em>The proxy</em>\r\n", body);
+
+    /* Print the HTTP response */
+    sprintf(buf, "HTTP/1.0 %s %s\r\n", errnum, shortmsg);
+    Rio_writen(fd, buf, strlen(buf));
+    sprintf(buf, "Content-type: text/html\r\n");
+    Rio_writen(fd, buf, strlen(buf));
+    sprintf(buf, "Content-length: %d\r\n\r\n", (int)strlen(body));
+    Rio_writen(fd, buf, strlen(buf));
+    Rio_writen(fd, body, strlen(body));
 }
