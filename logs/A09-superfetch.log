@@ -1,0 +1,61 @@
+>proxy temp/proxyProxy set up at localhost:21800
+>source '/afs/andrew.cmu.edu/usr18/sarthak3/proxylab-m18-sarthakjain27/tests/A09-superfetch.cmd'># Test ability to handle lots of fetches
+>serve sa sb sc
+Server sa running at localhost:21801
+Server sb running at localhost:21802
+Server sc running at localhost:21803
+>generate random-text1.txt 2K 
+>generate random-text2.txt 4K 
+>generate random-text3.txt 6K
+>generate random-text4.txt 8K
+>generate random-text5.txt 10K
+>generate random-text6.txt 12K
+>fetch f1a random-text1.txt sa
+Client: Fetching '/random-text1.txt' from localhost:21801
+>fetch f2a random-text2.txt sa
+Client: Fetching '/random-text2.txt' from localhost:21801
+>fetch f6a random-text6.txt sa
+Client: Fetching '/random-text6.txt' from localhost:21801
+>fetch f2b random-text2.txt sb
+Client: Fetching '/random-text2.txt' from localhost:21802
+>fetch f3a random-text3.txt sa
+Client: Fetching '/random-text3.txt' from localhost:21801
+>fetch f5c random-text5.txt sc
+Client: Fetching '/random-text5.txt' from localhost:21803
+>fetch f4a random-text4.txt sa
+Client: Fetching '/random-text4.txt' from localhost:21801
+>fetch f6b random-text6.txt sb
+Client: Fetching '/random-text6.txt' from localhost:21802
+>fetch f4c random-text4.txt sc
+Client: Fetching '/random-text4.txt' from localhost:21803
+>fetch f3b random-text3.txt sb
+Client: Fetching '/random-text3.txt' from localhost:21802
+>fetch f5b random-text5.txt sb
+Client: Fetching '/random-text5.txt' from localhost:21802
+>fetch f6c random-text6.txt sc
+Client: Fetching '/random-text6.txt' from localhost:21803
+>fetch f3c random-text3.txt sc
+Client: Fetching '/random-text3.txt' from localhost:21803
+>fetch f4b random-text4.txt sb
+Client: Fetching '/random-text4.txt' from localhost:21802
+>fetch f2c random-text2.txt sc
+Client: Fetching '/random-text2.txt' from localhost:21803
+>fetch f1b random-text1.txt sb
+Client: Fetching '/random-text1.txt' from localhost:21802
+>fetch f5a random-text5.txt sa
+Client: Fetching '/random-text5.txt' from localhost:21801
+>fetch f1c random-text1.txt sc
+Client: Fetching '/random-text1.txt' from localhost:21803
+>delay 300
+>check f1a
+ERROR: Request f1a generated status 'error'.  Expecting 'ok' (Got empty response for URL request http://localhost:21801/random-text1.txt)
+>check f1b
+ERROR: Request f1b generated status 'error'.  Expecting 'ok' (Couldn't connect to localhost:21800 ([Errno 111] Connection refused))
+>check f1c
+ERROR: Request f1c generated status 'error'.  Expecting 'ok' (Couldn't connect to localhost:21800 ([Errno 111] Connection refused))
+>check f2a
+ERROR: Request f2a generated status 'error'.  Expecting 'ok' (Couldn't connect to localhost:21800 ([Errno 111] Connection refused))
+>check f2b
+ERROR: Request f2b generated status 'error'.  Expecting 'ok' (Couldn't connect to localhost:21800 ([Errno 111] Connection refused))
+Too many errors.  Exiting
+ERROR COUNT = 5

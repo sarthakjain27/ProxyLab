@@ -1,0 +1,16 @@
+Test /afs/andrew.cmu.edu/usr18/sarthak3/proxylab-m18-sarthakjain27/tests/A01-single-fetch.cmd failed: ERROR COUNT = 1
+Test /afs/andrew.cmu.edu/usr18/sarthak3/proxylab-m18-sarthakjain27/tests/A02-basic-text.cmd failed: ERROR COUNT = 2
+Test /afs/andrew.cmu.edu/usr18/sarthak3/proxylab-m18-sarthakjain27/tests/A03-basic-binary.cmd failed: ERROR COUNT = 2
+Test /afs/andrew.cmu.edu/usr18/sarthak3/proxylab-m18-sarthakjain27/tests/A04-missing-file.cmd failed: ERROR COUNT = 2
+Test /afs/andrew.cmu.edu/usr18/sarthak3/proxylab-m18-sarthakjain27/tests/A05-large-text.cmd failed: ERROR COUNT = 2
+Test /afs/andrew.cmu.edu/usr18/sarthak3/proxylab-m18-sarthakjain27/tests/A06-large-binary.cmd failed: ERROR COUNT = 2
+Test /afs/andrew.cmu.edu/usr18/sarthak3/proxylab-m18-sarthakjain27/tests/A07-multiple-request.cmd failed: ERROR COUNT = 5
+Test /afs/andrew.cmu.edu/usr18/sarthak3/proxylab-m18-sarthakjain27/tests/A08-multiple-fetch.cmd failed: ERROR COUNT = 5
+Test /afs/andrew.cmu.edu/usr18/sarthak3/proxylab-m18-sarthakjain27/tests/A09-superfetch.cmd failed: ERROR COUNT = 5
+Test /afs/andrew.cmu.edu/usr18/sarthak3/proxylab-m18-sarthakjain27/tests/A10-fetch-request1.cmd failed: ERROR COUNT = 5
+Test /afs/andrew.cmu.edu/usr18/sarthak3/proxylab-m18-sarthakjain27/tests/A11-fetch-request2.cmd failed: ERROR COUNT = 5
+Test /afs/andrew.cmu.edu/usr18/sarthak3/proxylab-m18-sarthakjain27/tests/A12-fetch-request3.cmd failed: ERROR COUNT = 5
+Total run time = 32.87 seconds
+12 tests.  0 (0.0)% passed, 12 (100.0)% failed
+Runtime logs in directory ./logs
+ERROR COUNT = 12/12
