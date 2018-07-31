@@ -124,7 +124,7 @@ void process_request(int connfd)
 		free(host);
 		return;
 	}
-	itoa(def_port,defport,10);
+	sprintf(defport,"%d",def_port);
 	server_fd=Open_clientfd(host,defport);
 	if(server_fd < 0)
 	{
