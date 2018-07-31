@@ -106,7 +106,7 @@ void process_request(int connfd)
 {
 	int server_fd;
 	int def_port=80;
-	char *defport;
+	char *defport=NULL;
 	rio_t crio,srio;
 	
 	char *uri = Malloc(MAXLINE * sizeof(char));
@@ -313,7 +313,7 @@ void get_other_header(char *header, char *key, char *value)
 void get_host_port_header(char *value, char *host, int *port_in_header)
 {
 	char *colon=strchr(value,':');
-	char *port_val;
+	char *port_val=NULL;
 	if(colon!=NULL)
 	{
 		*colon=0;
