@@ -213,7 +213,7 @@ int create_requesthdrs(rio_t *rio, char *request, char *host, char *uri, int *de
 	*key=0;
 	*value=0;
 	int host_passed_header=0;
-	
+	char headerline[MAXLINE];	
 	if( rio_readlineb(rio,buf,MAXLINE)<0 )
 	{
 		printf("ReadLineb error in create_requesthdrs \n");
@@ -264,12 +264,16 @@ int create_requesthdrs(rio_t *rio, char *request, char *host, char *uri, int *de
 				host_passed_header=1;
 			}
 			if(strcmp(key,"User-Agent") && strcmp(key,"Connection") && strcmp(key,"Proxy-Connection"))
-				sprintf(request,"%s: %s\r\n",key,value);
+			{
+				sprintf(headerline,"%s: %s\r\n",key,value);
+				strcat(request,headerline);
+			}
 		}
 	}
 	if(!host_passed_header)
 	{
-		sprintf(request,"Host: %s:%d\r\n",host,port_in_url);	
+		sprintf(headerline,"Host: %s:%d\r\n",host,port_in_url);
+		strcat(request,headerline);	
 	}
 	*def_port=port_in_url;
 	strcat(request,"\r\n");
