@@ -115,7 +115,7 @@ void process_request(int connfd)
 {
 	int server_fd;
 	int def_port=80;
-	char *defport=NULL;
+	char defport[MAXLINE];
 	rio_t crio,srio;
 	
 	char *uri = Malloc(MAXLINE * sizeof(char));
@@ -137,7 +137,9 @@ void process_request(int connfd)
 	}
 	printf("def port value after rqst hdrs in process request is %d \n",def_port);
 	sprintf(defport,"%d",def_port);
+	printf("Calling open_clientfd\n");
 	server_fd=Open_clientfd(host,defport);
+	printf("returned from open_clientf with server_fd %d\n",server_fd);
 	if(server_fd < 0)
 	{
 		printf("Couldn't connect to the server with given host %s and def_port %d \n",host,def_port);
@@ -147,8 +149,9 @@ void process_request(int connfd)
 		free(host);
 		return;
 	}
+	printf("server_fd is not less than 0 \n");
 	Rio_readinitb(&srio, server_fd);
-	
+	printf("writing the request headers to server %s\n",request);
 	if ((size_t) rio_writen(server_fd, request, strlen(request)) != strlen(request)) 
 	{
         unix_error("Rio_writen error");
@@ -160,10 +163,13 @@ void process_request(int connfd)
 		free(host);
 		return;
     }
+	printf("Request written to server. \n");
 	ssize_t nread;
 	char temp[MAX_OBJECT_SIZE];
+	printf("entering loop to read response from server \n");
 	while( (nread=Rio_readnb(&srio,temp,MAX_OBJECT_SIZE))!= 0 )
 	{
+		printf("While loop entered \n");
 		if( nread < 0 )
 		{
 			client_error(connfd,host,"404","Page Not Found","Built Proxy couldn't connect to this server");
