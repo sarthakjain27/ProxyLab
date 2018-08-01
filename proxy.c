@@ -60,13 +60,16 @@ int main(int argc, char** argv)
 	Signal(SIGPIPE,SIGPIPE_HNDLR);
 	
 	listenfd=Open_listenfd(argv[1]);
+	printf("Listening port for proxy is %s \n",argv[1]);
 	
 	while(1)
 	{
 		clientlen=sizeof(struct sockaddr_storage);
 		connfdp = Malloc(sizeof(int));
 		*connfdp = Accept(listenfd, (SA *) &clientaddr, &clientlen);
+		printf("Calling pthread_create() in main \n");
 		Pthread_create(&tid, NULL, thread, connfdp);
+		printf("Returned from pthread_create() in main \n");
 	}
 	
     return 0;
@@ -84,7 +87,9 @@ void *thread(void* vargp)
 	*/ 
 	Pthread_detach(Pthread_self());
 	free(vargp);
+	printf("Calling process request in thread \n");
 	process_request(connfd);
+	printf("Returned from process request in thread \n");
 	Close(connfd);
 	return NULL;
 }
@@ -115,8 +120,10 @@ void process_request(int connfd)
 	
 	Rio_readinitb(&crio, connfd);
 	
+	printf("Calling create requesthdrs in process request \n");
 	// Create request hdrs to be sent to server
 	int isGet_rqst=create_requesthdrs(&crio, request, host, uri, &def_port);
+	printf("Returned from create_requesthdrs in process request with isGet_rqst val %d\n",isGet_rqst);
 	if(!isGet_rqst)
 	{
 		free(uri);
@@ -124,6 +131,7 @@ void process_request(int connfd)
 		free(host);
 		return;
 	}
+	printf("def port value after rqst hdrs in process request is %d \n",def_port);
 	sprintf(defport,"%d",def_port);
 	server_fd=Open_clientfd(host,defport);
 	if(server_fd < 0)
