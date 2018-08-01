@@ -14,7 +14,7 @@
 
 static const char *header_user_agent = "User Agent: Mozilla/5.0"
                                     " (X11; Linux x86_64; rv:45.0)"
-                                    " Gecko/20180601 Firefox/45.0";
+                                    " Gecko/20180601 Firefox/45.0\r\n";
 
 static const char *default_version="HTTP/1.0\r\n";
 static const char *connection_hdr = "Connection: close\r\n";
@@ -60,7 +60,7 @@ int main(int argc, char** argv)
 	Signal(SIGPIPE,SIGPIPE_HNDLR);
 	
 	listenfd=Open_listenfd(argv[1]);
-	printf("Listening port for proxy is %s \n",argv[1]);
+	printf("Listening port for proxy is %s and open_listenfd returned %d \n",argv[1],listenfd);
 	printf("Entering while loop \n");	
 	while(1)
 	{
@@ -202,8 +202,10 @@ int create_requesthdrs(rio_t *rio, char *request, char *host, char *uri, int *de
 	char uri_without_host[MAXLINE];
 	char method[MAXLINE];
 	char version[MAXLINE];
-	char *key='\0';
-	char *value='\0';
+	char key[MAXLINE];
+	char value[MAXLINE];
+	*key=0;
+	*value=0;
 	int host_passed_header=0;
 	
 	if( rio_readlineb(rio,buf,MAXLINE)<0 )
@@ -227,19 +229,27 @@ int create_requesthdrs(rio_t *rio, char *request, char *host, char *uri, int *de
 	strcat(request,connection_hdr);
 	strcat(request,proxy_connection_hdr);
 	
-	while(strcmp(buf,"\r\n"))
+	printf("Request before strcmp in create_rqsthdrs is %s\n",request);
+	printf("value of buf in strcmp of create_rqst hdrs is %s \n",buf);
+	while(strcmp(buf,"\r\n") && strcmp(buf,"\n\r") && strcmp(buf,"\n") && strcmp(buf,"\r"))
 	{
+		printf("While loop entered \n");	
 		*key='\0';
 		*value='\0';
+		printf("Calling rio_readlineb\n");
 		if( rio_readlineb(rio,buf,MAXLINE)<0 )
 		{
 			printf("ReadLineb error in while of create_requesthdrs \n");
 			return 0;
 		}
-		if(!strcmp(buf,"\r\n"))
+		printf("Returned from rio readlineb with buf value %s and length %zu\n",buf,strlen(buf));
+		if(!(strcmp(buf,"\r\n") && strcmp(buf,"\n\r") && strcmp(buf,"\n") && strcmp(buf,"\r")))
 			break;
 		
+
+		printf("Calling get other header \n");
 		get_other_header(buf,key,value);
+		printf("Returned from get other header with buf %s key %s value %s \n",buf,key,value);
 		if(*key!='\0' && *value!='\0')
 		{
 			if(!strcmp(key,"Host"))
@@ -302,18 +312,22 @@ void parse_uri(char *uri, char *host, int *port_in_url, char *uri_without_host)
 //Helper functions to get name and value of passed headers
 void get_other_header(char *header, char *key, char *value)
 {
-	char *colon,*end;
+	printf("get other header entered \n");
+	char *colon;
 	colon=strchr(header,':');
 	if(colon!=NULL)
 	{
 		*colon=0;
 		strcpy(key,header);
+		printf("Value of key %s\n",key);
 		*colon=':';
-		
-		end=strstr(header,"\r");
-		*end=0;
+			
+		//end=strstr(header,"\r");
+		//printf("end value is %c\n",*end);
+		//*end=0;
 		strcpy(value,colon+2);
-		*end='\r';
+		printf("Value of value %s\n",value);
+		//*end='\r';
 	}
 }
 
