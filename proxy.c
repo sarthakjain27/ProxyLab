@@ -61,12 +61,16 @@ int main(int argc, char** argv)
 	
 	listenfd=Open_listenfd(argv[1]);
 	printf("Listening port for proxy is %s \n",argv[1]);
-	
+	printf("Entering while loop \n");	
 	while(1)
 	{
+		printf("While loop entered \n");
 		clientlen=sizeof(struct sockaddr_storage);
+		printf("sizeof done \n");
 		connfdp = Malloc(sizeof(int));
+		printf("Malloc done \n");
 		*connfdp = Accept(listenfd, (SA *) &clientaddr, &clientlen);
+		printf("Accept done \n");
 		printf("Calling pthread_create() in main \n");
 		Pthread_create(&tid, NULL, thread, connfdp);
 		printf("Returned from pthread_create() in main \n");
