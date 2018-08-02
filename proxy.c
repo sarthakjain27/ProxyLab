@@ -26,7 +26,6 @@ void *thread(void* vargp);
 void process_request(int connfd);
 int create_requesthdrs(rio_t *rio, char *request, char *host, char *uri, int *def_port);
 void parse_uri(char *uri, char *host, int *port_in_url, char *uri_without_host);
-void get_other_header(char *header, char *key, char *value);
 void get_host_port_header(char *value, char *host, int *port_in_header);
 void client_error(int fd, char *cause, char *errnum, char *shortmsg, char *longmsg);
 
@@ -328,23 +327,6 @@ void parse_uri(char *uri, char *host, int *port_in_url, char *uri_without_host)
 	}
 }
 
-//Helper functions to get name and value of passed headers
-void get_other_header(char *header, char *key, char *value)
-{
-	printf("get other header entered \n");
-	char *colon;
-	colon=strchr(header,':');
-	if(colon!=NULL)
-	{
-		*colon=0;
-		strcpy(key,header);
-		printf("Value of key %s\n",key);
-		*colon=':';
-			
-		strcpy(value,colon+2);
-		printf("Value of value %s\n",value);
-	}
-}
 
 /* If we have passed Host: as header filed
 * then the value field contains hostname and the port
