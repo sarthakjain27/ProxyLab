@@ -210,8 +210,10 @@ int create_requesthdrs(rio_t *rio, char *request, char *host, char *uri, int *de
 	char version[MAXLINE];
 	char key[MAXLINE];
 	char value[MAXLINE];
+	char key_colon[MAXLINE];
 	*key=0;
 	*value=0;
+	*key_colon=0;
 	int host_passed_header=0;
 	char headerline[MAXLINE];	
 	if( rio_readlineb(rio,buf,MAXLINE)<0 )
@@ -242,6 +244,7 @@ int create_requesthdrs(rio_t *rio, char *request, char *host, char *uri, int *de
 		printf("While loop entered \n");	
 		*key='\0';
 		*value='\0';
+		*key_colon='\0';
 		printf("Calling rio_readlineb\n");
 		if( rio_readlineb(rio,buf,MAXLINE)<0 )
 		{
@@ -254,7 +257,10 @@ int create_requesthdrs(rio_t *rio, char *request, char *host, char *uri, int *de
 		
 
 		printf("Calling get other header \n");
-		get_other_header(buf,key,value);
+		//get_other_header(buf,key,value);
+		sscanf(buf,"%s %s",key_colon,value);
+		if(*key_colon!='\0')
+			strncpy(key,key_colon,strlen(key_colon)-1);
 		printf("Returned from get other header with buf %s key %s value %s \n",buf,key,value);
 		if(*key!='\0' && *value!='\0')
 		{
@@ -265,7 +271,10 @@ int create_requesthdrs(rio_t *rio, char *request, char *host, char *uri, int *de
 			}
 			if(strcmp(key,"User-Agent") && strcmp(key,"Connection") && strcmp(key,"Proxy-Connection"))
 			{
-				sprintf(headerline,"%s: %s\r\n",key,value);
+				if(!strcmp(key,"Host"))
+					sprintf(headerline,"%s: %s\r\n",key,value);
+				else
+					sprintf(headerline,"%s: %s",key,value);
 				strcat(request,headerline);
 			}
 		}
@@ -332,12 +341,8 @@ void get_other_header(char *header, char *key, char *value)
 		printf("Value of key %s\n",key);
 		*colon=':';
 			
-		//end=strstr(header,"\r");
-		//printf("end value is %c\n",*end);
-		//*end=0;
 		strcpy(value,colon+2);
 		printf("Value of value %s\n",value);
-		//*end='\r';
 	}
 }
 
