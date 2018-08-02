@@ -241,6 +241,9 @@ int create_requesthdrs(rio_t *rio, char *request, char *host, char *uri, int *de
 		*key='\0';
 		*value='\0';
 		*key_colon='\0';
+		memset(key,'\0',sizeof(key));
+		memset(key_colon,'\0',sizeof(key_colon));
+		memset(value,'\0',sizeof(value));
 		fprintf(stderr,"Calling rio_readlineb\n");
 		if( rio_readlineb(rio,buf,MAXLINE)<0 )
 		{
@@ -256,7 +259,8 @@ int create_requesthdrs(rio_t *rio, char *request, char *host, char *uri, int *de
 		//get_other_header(buf,key,value);
 		sscanf(buf,"%s %s",key_colon,value);
 		fprintf(stderr,"key_colon after scanf %s and value %s\n",key_colon,value);
-		strncpy(key,key_colon,strlen(key_colon)-1);
+		if(*key_colon!='\0' && strchr(key_colon,':')!=NULL)
+			strncpy(key,key_colon,strlen(key_colon)-1);
 		fprintf(stderr,"Returned from get other header with buf %s key %s value %s \n",buf,key,value);
 		if(*key!='\0' && *value!='\0')
 		{
