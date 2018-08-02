@@ -12,10 +12,7 @@
 #define MAX_CACHE_SIZE (1024*1024)
 #define MAX_OBJECT_SIZE (100*1024)
 
-static const char *header_user_agent = "User Agent: Mozilla/5.0"
-                                    " (X11; Linux x86_64; rv:45.0)"
-                                    " Gecko/20180601 Firefox/45.0\r\n";
-
+static const char *header_user_agent = "User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0\r\n";
 static const char *default_version="HTTP/1.0\r\n";
 static const char *connection_hdr = "Connection: close\r\n";
 static const char *proxy_connection_hdr = "Proxy-Connection: close\r\n";
@@ -63,16 +60,16 @@ int main(int argc, char** argv)
 	printf("Entering while loop \n");	
 	while(1)
 	{
-		printf("While loop entered \n");
+		fprintf(stderr,"While loop entered \n");
 		clientlen=sizeof(struct sockaddr_storage);
-		printf("sizeof done \n");
+		fprintf(stderr,"sizeof done \n");
 		connfdp = Malloc(sizeof(int));
-		printf("Malloc done \n");
+		fprintf(stderr,"Malloc done \n");
 		*connfdp = Accept(listenfd, (SA *) &clientaddr, &clientlen);
-		printf("Accept done \n");
-		printf("Calling pthread_create() in main \n");
+		fprintf(stderr,"Accept done \n");
+		fprintf(stderr,"Calling pthread_create() in main \n");
 		Pthread_create(&tid, NULL, thread, connfdp);
-		printf("Returned from pthread_create() in main \n");
+		fprintf(stderr,"Returned from pthread_create() in main \n");
 	}
 	
     return 0;
@@ -90,9 +87,9 @@ void *thread(void* vargp)
 	*/ 
 	Pthread_detach(Pthread_self());
 	free(vargp);
-	printf("Calling process request in thread \n");
+	fprintf(stderr,"Calling process request in thread \n");
 	process_request(connfd);
-	printf("Returned from process request in thread \n");
+	fprintf(stderr,"Returned from process request in thread \n");
 	Close(connfd);
 	return NULL;
 }
@@ -123,10 +120,10 @@ void process_request(int connfd)
 	
 	Rio_readinitb(&crio, connfd);
 	
-	printf("Calling create requesthdrs in process request \n");
+	fprintf(stderr,"Calling create requesthdrs in process request \n");
 	// Create request hdrs to be sent to server
 	int isGet_rqst=create_requesthdrs(&crio, request, host, uri, &def_port);
-	printf("Returned from create_requesthdrs in process request with isGet_rqst val %d\n",isGet_rqst);
+	fprintf(stderr,"Returned from create_requesthdrs in process request with isGet_rqst val %d\n",isGet_rqst);
 	if(!isGet_rqst)
 	{
 		free(uri);
@@ -134,41 +131,41 @@ void process_request(int connfd)
 		free(host);
 		return;
 	}
-	printf("def port value after rqst hdrs in process request is %d \n",def_port);
+	fprintf(stderr,"def port value after rqst hdrs in process request is %d \n",def_port);
 	sprintf(defport,"%d",def_port);
-	printf("Calling open_clientfd\n");
+	fprintf(stderr,"Calling open_clientfd\n");
 	server_fd=Open_clientfd(host,defport);
-	printf("returned from open_clientf with server_fd %d\n",server_fd);
+	fprintf(stderr,"returned from open_clientf with server_fd %d\n",server_fd);
 	if(server_fd < 0)
 	{
-		printf("Couldn't connect to the server with given host %s and def_port %d \n",host,def_port);
+		fprintf(stderr,"Couldn't connect to the server with given host %s and def_port %d \n",host,def_port);
 		client_error(connfd,host,"404","Page Not Found","Built Proxy couldn't connect to this server");
 		free(uri);
 		free(request);
 		free(host);
 		return;
 	}
-	printf("server_fd is not less than 0 \n");
+	fprintf(stderr,"server_fd is not less than 0 \n");
 	Rio_readinitb(&srio, server_fd);
-	printf("writing the request headers to server %s\n",request);
+	fprintf(stderr,"writing the request headers to server %s\n",request);
 	if ((size_t) rio_writen(server_fd, request, strlen(request)) != strlen(request)) 
 	{
         unix_error("Rio_writen error");
 		if(errno==EPIPE)
-			printf("Server closed %s \n",strerror(errno));
+			fprintf(stderr,"Server closed %s \n",strerror(errno));
 		Close(server_fd);
 		free(uri);
 		free(request);
 		free(host);
 		return;
     }
-	printf("Request written to server. \n");
+	fprintf(stderr,"Request written to server. \n");
 	ssize_t nread;
 	char temp[MAX_OBJECT_SIZE];
-	printf("entering loop to read response from server \n");
+	fprintf(stderr,"entering loop to read response from server \n");
 	while( (nread=Rio_readnb(&srio,temp,MAX_OBJECT_SIZE))!= 0 )
 	{
-		printf("While loop entered \n");
+		fprintf(stderr,"While loop entered \n");
 		if( nread < 0 )
 		{
 			client_error(connfd,host,"404","Page Not Found","Built Proxy couldn't connect to this server");
@@ -181,7 +178,7 @@ void process_request(int connfd)
 		{
 			unix_error("Rio_writen error");
 			if(errno==EPIPE)
-				printf("Server closed %s \n",strerror(errno));
+				fprintf(stderr,"Server closed %s \n",strerror(errno));
 		}
 	}
 	Close(server_fd);
@@ -217,7 +214,7 @@ int create_requesthdrs(rio_t *rio, char *request, char *host, char *uri, int *de
 	char headerline[MAXLINE];	
 	if( rio_readlineb(rio,buf,MAXLINE)<0 )
 	{
-		printf("ReadLineb error in create_requesthdrs \n");
+		fprintf(stderr,"ReadLineb error in create_requesthdrs \n");
 		return 0;
 	}
 	
@@ -229,58 +226,58 @@ int create_requesthdrs(rio_t *rio, char *request, char *host, char *uri, int *de
 	
 	//call function to separate host, uri, port
 	parse_uri(uri,host,&port_in_url,uri_without_host);
-	printf("Passed values are %s %s %s %d %s \n", uri, method, host, port_in_url, uri_without_host);
+	fprintf(stderr,"Passed values are %s %s %s %d %s \n", uri, method, host, port_in_url, uri_without_host);
 	sprintf(request,"%s %s %s",method,uri_without_host,default_version);
 	
 	strcat(request,header_user_agent);
 	strcat(request,connection_hdr);
 	strcat(request,proxy_connection_hdr);
 	
-	printf("Request before strcmp in create_rqsthdrs is %s\n",request);
-	printf("value of buf in strcmp of create_rqst hdrs is %s \n",buf);
-	while(strcmp(buf,"\r\n") && strcmp(buf,"\n\r") && strcmp(buf,"\n") && strcmp(buf,"\r"))
+	fprintf(stderr,"Request before strcmp in create_rqsthdrs is %s\n",request);
+	fprintf(stderr,"value of buf in strcmp of create_rqst hdrs is %s \n",buf);
+	while(strcmp(buf,"\r\n"))
 	{
-		printf("While loop entered \n");	
+		fprintf(stderr,"While loop entered \n");	
 		*key='\0';
 		*value='\0';
 		*key_colon='\0';
-		printf("Calling rio_readlineb\n");
+		fprintf(stderr,"Calling rio_readlineb\n");
 		if( rio_readlineb(rio,buf,MAXLINE)<0 )
 		{
-			printf("ReadLineb error in while of create_requesthdrs \n");
+			fprintf(stderr,"ReadLineb error in while of create_requesthdrs \n");
 			return 0;
 		}
-		printf("Returned from rio readlineb with buf value %s and length %zu\n",buf,strlen(buf));
-		if(!(strcmp(buf,"\r\n") && strcmp(buf,"\n\r") && strcmp(buf,"\n") && strcmp(buf,"\r")))
+		fprintf(stderr,"Returned from rio readlineb with buf value %s and length %zu\n",buf,strlen(buf));
+		if(!(strcmp(buf,"\r\n")))
 			break;
 		
 
-		printf("Calling get other header \n");
+		fprintf(stderr,"Calling get other header key_colon %s\n",key_colon);
 		//get_other_header(buf,key,value);
 		sscanf(buf,"%s %s",key_colon,value);
-		if( *key_colon!='\0' && strchr(key,':')!=NULL )
-			strncpy(key,key_colon,strlen(key_colon)-1);
-		printf("Returned from get other header with buf %s key %s value %s \n",buf,key,value);
+		fprintf(stderr,"key_colon after scanf %s and value %s\n",key_colon,value);
+		strncpy(key,key_colon,strlen(key_colon)-1);
+		fprintf(stderr,"Returned from get other header with buf %s key %s value %s \n",buf,key,value);
 		if(*key!='\0' && *value!='\0')
 		{
 			if(!strcmp(key,"Host"))
 			{
+				fprintf(stderr,"Calling get host port header \n");
 				get_host_port_header(value,host,&port_in_url);
+				fprintf(stderr,"Returned from host port header %s %d\n",host,port_in_url);
 				host_passed_header=1;
 			}
 			if(strcmp(key,"User-Agent") && strcmp(key,"Connection") && strcmp(key,"Proxy-Connection"))
 			{
-				if(!strcmp(key,"Host"))
-					sprintf(headerline,"%s: %s\r\n",key,value);
-				else
-					sprintf(headerline,"%s: %s",key,value);
+				sprintf(headerline,"%s: %s\r\n",key,value);
+				fprintf(stderr,"Headerline %s and len %zu\n",headerline,strlen(headerline));
 				strcat(request,headerline);
 			}
 		}
 	}
 	if(!host_passed_header)
 	{
-		sprintf(headerline,"Host: %s:%d\r\n",host,port_in_url);
+		sprintf(headerline,"Host: %s\r\n",host);
 		strcat(request,headerline);	
 	}
 	*def_port=port_in_url;
@@ -309,18 +306,18 @@ void parse_uri(char *uri, char *host, int *port_in_url, char *uri_without_host)
 		//make '/' after port to 0 so that strcpy thinks it is NULL character and only return val till that;
 		*slash_ptr=0;
 		strcpy(host_without_uri,host_start_ptr);
-		printf("host_without_uri %s \n",host_without_uri);
+		fprintf(stderr,"host_without_uri %s \n",host_without_uri);
 		
 		*slash_ptr='/';
 		strcpy(uri_without_host,slash_ptr);
-		printf("uri_without_host %s\n",uri_without_host);
+		fprintf(stderr,"uri_without_host %s\n",uri_without_host);
 		
 		port_start_ptr=strchr(host_without_uri,':');
 		if(port_start_ptr!=NULL)
 		{
 			*slash_ptr=0;
 			strcpy(port_extract, port_start_ptr + 1);
-			printf("Port_extract %s \n",port_extract);
+			fprintf(stderr,"Port_extract %s \n",port_extract);
 			*port_in_url=atoi(port_extract);
 		}
 		strcpy(host,host_without_uri);
@@ -335,16 +332,23 @@ void parse_uri(char *uri, char *host, int *port_in_url, char *uri_without_host)
 */ 
 void get_host_port_header(char *value, char *host, int *port_in_header)
 {
+	fprintf(stderr,"host port header() entered with value %s host %s and port %d \n",value,host,*port_in_header);
 	char *colon=strchr(value,':');
-	char *port_val=NULL;
+	fprintf(stderr,"colon ptr at %s",colon);
+	char port_val[MAXLINE];
+	*port_val=0;
 	if(colon!=NULL)
 	{
+		fprintf(stderr,"if entered \n");
 		*colon=0;
 		strcpy(host,value);
+		fprintf(stderr,"host now is %s",host);
 		*colon=':';
 		strcpy(port_val,colon+1);
+		fprintf(stderr,"port now is %s",port_val);
 		*port_in_header=atoi(port_val);
 	}
+	fprintf(stderr,"returning from host port header \n");
 }
 
 void client_error(int fd, char *cause, char *errnum, char *shortmsg, char *longmsg)
