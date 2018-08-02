@@ -258,7 +258,7 @@ int create_requesthdrs(rio_t *rio, char *request, char *host, char *uri, int *de
 		printf("Calling get other header \n");
 		//get_other_header(buf,key,value);
 		sscanf(buf,"%s %s",key_colon,value);
-		if(*key_colon!='\0')
+		if( *key_colon!='\0' && strchr(key,':')!=NULL )
 			strncpy(key,key_colon,strlen(key_colon)-1);
 		printf("Returned from get other header with buf %s key %s value %s \n",buf,key,value);
 		if(*key!='\0' && *value!='\0')
