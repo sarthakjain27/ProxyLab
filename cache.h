@@ -19,6 +19,11 @@ typedef struct cache_node{
 
 extern cnode *head,*tail;
 extern int rqst_in_cache;
-extern volatile size_t present_cach_size;
+extern volatile size_t present_cache_size;
 extern volatile int readcnt;
 extern sem_t mutex,w;
+
+void cache_init();
+cnode * check(char *host,char *uri,int def_port);
+void delete(cnode *node);
+void enqueue(cnode *node);
