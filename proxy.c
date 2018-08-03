@@ -3,6 +3,7 @@
 */
 
 #include "csapp.h"
+#include "cache.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <strings.h>
@@ -24,6 +25,7 @@ void process_request(int connfd);
 int create_requesthdrs(rio_t *rio, char *request, char *host, char *uri, int *def_port);
 void parse_uri(char *uri, char *host, int *port_in_url, char *uri_without_host);
 void get_host_port_header(char *value, char *host, int *port_in_header);
+cnode * check_presence_cache(char *host,char *uri,int def_port);
 void client_error(int fd, char *cause, char *errnum, char *shortmsg, char *longmsg);
 
 
@@ -54,7 +56,7 @@ int main(int argc, char** argv)
     }
 	
 	Signal(SIGPIPE,SIGPIPE_HNDLR);
-	
+	cache_initial();
 	listenfd=Open_listenfd(argv[1]);
 	printf("Listening port for proxy is %s and open_listenfd returned %d \n",argv[1],listenfd);
 	printf("Entering while loop \n");	
@@ -117,7 +119,7 @@ void process_request(int connfd)
 	char *uri = Malloc(MAXLINE * sizeof(char));
     char *request = Malloc(MAXLINE * sizeof(char));
     char *host = Malloc(MAXLINE * sizeof(char));
-	
+	cnode *present_node=NULL;
 	Rio_readinitb(&crio, connfd);
 	
 	fprintf(stderr,"Calling create requesthdrs in process request \n");
@@ -133,6 +135,25 @@ void process_request(int connfd)
 	}
 	fprintf(stderr,"def port value after rqst hdrs in process request is %d \n",def_port);
 	sprintf(defport,"%d",def_port);
+	
+	
+	fprintf(stderr,"Checking for presence of request in cache \n");
+	present_node=check_presence_cache(host,uri,def_port);
+	if(present_node)
+	{
+		fprintf(stderr,"Request present in cache \n");
+		delete(present_node);
+		insert_front(present_node);
+		if ((ssize_t) rio_writen(connfd,present_node->response,present_node->node_size) != present_node->node_size) 
+		{
+			unix_error("Rio_writen error");
+			if(errno==EPIPE)
+				fprintf(stderr,"Server closed %s \n",strerror(errno));
+		}
+		return;
+	}
+	fprintf(stderr,"Request not present in cache \n");
+	
 	fprintf(stderr,"Calling open_clientfd\n");
 	server_fd=Open_clientfd(host,defport);
 	fprintf(stderr,"returned from open_clientf with server_fd %d\n",server_fd);
@@ -254,9 +275,7 @@ int create_requesthdrs(rio_t *rio, char *request, char *host, char *uri, int *de
 		if(!(strcmp(buf,"\r\n")))
 			break;
 		
-
 		fprintf(stderr,"Calling get other header key_colon %s\n",key_colon);
-		//get_other_header(buf,key,value);
 		sscanf(buf,"%s %s",key_colon,value);
 		fprintf(stderr,"key_colon after scanf %s and value %s\n",key_colon,value);
 		if(*key_colon!='\0' && strchr(key_colon,':')!=NULL)
@@ -353,6 +372,25 @@ void get_host_port_header(char *value, char *host, int *port_in_header)
 		*port_in_header=atoi(port_val);
 	}
 	fprintf(stderr,"returning from host port header \n");
+}
+
+cnode * check_presence_cache(char *host,char *uri,int def_port)
+{
+	cnode *node=NULL;
+	P(&mutex);
+	readcnt++;
+	if(readcnt==1)
+		P(&w);
+	V(&mutex);
+	
+	node=check(host,uri,def_port);
+	
+	P(&mutex);
+	readcnt--;
+	if(readcnt==0)
+		v(&w);
+	v(&mutex);
+	return node;
 }
 
 void client_error(int fd, char *cause, char *errnum, char *shortmsg, char *longmsg)
