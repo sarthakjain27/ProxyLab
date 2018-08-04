@@ -14,10 +14,13 @@ all: proxy tiny-code
 csapp.o: csapp.c csapp.h
 	$(CC) $(CFLAGS) -c csapp.c
 
+cache.o: cache.c csapp.h
+	$(CC) $(CFLAGS) -c cache.c
+
 proxy.o: proxy.c csapp.h
 	$(CC) $(CFLAGS) -c proxy.c
 
-proxy: proxy.o csapp.o
+proxy: proxy.o csapp.o cache.o
 
 tiny-code:
 	(cd tiny; make)
