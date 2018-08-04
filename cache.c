@@ -16,14 +16,8 @@
 #include "cache.h"
 #include <strings.h>
 #include <string.h>
-#include "csapp.h"
 #include <semaphore.h>
 
-cnode *head,*tail;
-int rqst_in_cache;
-volatile size_t present_cache_size;
-volatile int readcnt;
-sem_t mutex,w;
 
 /*
 * Initialize the cache with default values
@@ -36,8 +30,6 @@ void cache_initial()
 	rqst_in_cache=0;
 	present_cache_size=0;
 	readcnt=0;
-	Sem_init(&mutex,0,1); // to control number readcnt update when GET request comes
-	Sem_init(&w,0,1); // to control access to cache when modification/reading is happening
 }
 
 /*
@@ -58,11 +50,14 @@ cnode * check(char *host,char *uri,int def_port)
 //function to create a new node and store the passed values
 cnode * create_node(char *hostname, char *pathname, int port, char *response, size_t response_size)
 {
-	cnode *node=(cnode *)Malloc(sizeof(cnode));
-	node->hostname=hostname;
-	node->pathname=pathname;
+	cnode *node=(cnode *)malloc(sizeof(cnode));
+	node->hostname=malloc(strlen(hostname)+1);
+	strcpy(node->hostname,hostname);
+	node->pathname=malloc(strlen(pathname)+1);
+	strcpy(node->pathname,pathname);
 	node->port=port;
-	node->response=response;
+	node->response=malloc(strlen(response)+1);
+	strcpy(node->response,response);
 	node->node_size=response_size;
 	node->next=NULL;
 	node->prev=NULL;

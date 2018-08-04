@@ -38,14 +38,13 @@ void SIGPIPE_HNDLR()
     printf(" The SIGPIPE signal is caught!\n");
     return;
 }
-
+sem_t mutex,w;
 int main(int argc, char** argv)
 {
 	int listenfd,*connfdp;
 	socklen_t clientlen;
 	struct sockaddr_storage clientaddr;
 	pthread_t tid;
-	
 	/* Check number of command line arguments 
 	* 
 	* And if more than 2 (executable file name and port) arguments
@@ -58,6 +57,8 @@ int main(int argc, char** argv)
 	
 	Signal(SIGPIPE,SIGPIPE_HNDLR);
 	cache_initial();
+	Sem_init(&mutex,0,1);
+	Sem_init(&w,0,1);
 	listenfd=Open_listenfd(argv[1]);
 	printf("Listening port for proxy is %s and open_listenfd returned %d \n",argv[1],listenfd);
 	printf("Entering while loop \n");	

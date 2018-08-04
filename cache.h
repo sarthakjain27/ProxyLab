@@ -4,8 +4,7 @@
 #ifndef __CACHE_H__
 #define __CACHE_H__
 
-#include "csapp.h"
-#inlcude<semaphor.h>
+#include <semaphore.h>
 
 
 #define MAX_CACHE_SIZE (1024*1024)
@@ -21,11 +20,10 @@ typedef struct cache_node{
 	struct cache_node *prev;
 }cnode;
 
-extern cnode *head,*tail;
-extern int rqst_in_cache;
-extern volatile size_t present_cache_size;
-extern volatile int readcnt;
-extern sem_t mutex,w;
+cnode *head,*tail;
+int rqst_in_cache;
+size_t present_cache_size;
+int readcnt;
 
 void cache_initial();
 cnode *check(char *host,char *uri,int def_port);
