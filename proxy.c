@@ -147,7 +147,7 @@ void process_request(int connfd)
 		fprintf(stderr,"Request present in cache \n");
 		delete_node(present_node);
 		insert_front(present_node);
-		if ((ssize_t) rio_writen(connfd,present_node->response,present_node->node_size) != present_node->node_size) 
+		if (rio_writen(connfd,present_node->response,present_node->node_size) != present_node->node_size) 
 		{
 			unix_error("Rio_writen error");
 			if(errno==EPIPE)
@@ -407,8 +407,8 @@ cnode * check_presence_cache(char *host,char *uri,int def_port)
 	P(&mutex);
 	readcnt--;
 	if(readcnt==0)
-		v(&w);
-	v(&mutex);
+		V(&w);
+	V(&mutex);
 	return node;
 }
 
