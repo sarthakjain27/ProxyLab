@@ -24,6 +24,8 @@ extern volatile int readcnt;
 extern sem_t mutex,w;
 
 void cache_init();
-cnode * check(char *host,char *uri,int def_port);
-void delete(cnode *node);
-void enqueue(cnode *node);
+cnode *check(char *host,char *uri,int def_port);
+void delete_node(cnode *node);
+void insert_front(cnode *node);
+cnode *create_node(char *hostname, char *pathname, int port, char *response, size_t response_size);
+void delete_LRU();
