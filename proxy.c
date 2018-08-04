@@ -143,18 +143,25 @@ void process_request(int connfd)
 	
 	
 	fprintf(stderr,"Checking for presence of request in cache \n");
+	fprintf(stderr,"Calling check presence function \n");
 	present_node=check_presence_cache(host,uri,def_port);
+	fprintf(stderr,"Returned from check presence with present node %p\n",present_node);
 	if(present_node)
 	{
+		P(&w);
 		fprintf(stderr,"Request present in cache \n");
+		fprintf(stderr,"Calling delete node \n");
 		delete_node(present_node);
+		fprintf(stderr,"returned from delete node, calling insert \n");
 		insert_front(present_node);
+		fprintf(stderr,"returned from insert front");
 		if ((size_t)rio_writen(connfd,present_node->response,present_node->node_size) != present_node->node_size) 
 		{
 			unix_error("Rio_writen error");
 			if(errno==EPIPE)
 				fprintf(stderr,"Server closed %s \n",strerror(errno));
 		}
+		V(&w);
 		return;
 	}
 	fprintf(stderr,"Request not present in cache \n");
@@ -214,14 +221,14 @@ void process_request(int connfd)
 	if(response_size<=MAX_OBJECT_SIZE)
 	{
 		cnode *new_node=create_node(host,uri,def_port,response,response_size);
-		V(&w);
+		P(&w);
 		while(present_cache_size + response_size > MAX_CACHE_SIZE)
 			delete_LRU();
 		insert_front(new_node);
 		fprintf(stderr,"New request inserted in cache \n");
 		fprintf(stderr,"total request in cache %d \n",rqst_in_cache);
 		fprintf(stderr,"total cache size %zu \n",present_cache_size);
-		P(&w);
+		V(&w);
 	}
 	Close(server_fd);
 	free(uri);
