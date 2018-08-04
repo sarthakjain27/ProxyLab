@@ -148,7 +148,7 @@ void process_request(int connfd)
 		fprintf(stderr,"Request present in cache \n");
 		delete_node(present_node);
 		insert_front(present_node);
-		if (rio_writen(connfd,present_node->response,present_node->node_size) != present_node->node_size) 
+		if ((size_t)rio_writen(connfd,present_node->response,present_node->node_size) != present_node->node_size) 
 		{
 			unix_error("Rio_writen error");
 			if(errno==EPIPE)
