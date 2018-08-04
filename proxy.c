@@ -119,6 +119,9 @@ void process_request(int connfd)
 	char *uri = Malloc(MAXLINE * sizeof(char));
     char *request = Malloc(MAXLINE * sizeof(char));
     char *host = Malloc(MAXLINE * sizeof(char));
+	char response[MAX_OBJECT_SIZE];
+	strcpy(response,"");
+	int response_size=0;
 	cnode *present_node=NULL;
 	Rio_readinitb(&crio, connfd);
 	
@@ -142,7 +145,7 @@ void process_request(int connfd)
 	if(present_node)
 	{
 		fprintf(stderr,"Request present in cache \n");
-		delete(present_node);
+		delete_node(present_node);
 		insert_front(present_node);
 		if ((ssize_t) rio_writen(connfd,present_node->response,present_node->node_size) != present_node->node_size) 
 		{
@@ -184,7 +187,8 @@ void process_request(int connfd)
 	ssize_t nread;
 	char temp[MAX_OBJECT_SIZE];
 	fprintf(stderr,"entering loop to read response from server \n");
-	while( (nread=Rio_readnb(&srio,temp,MAX_OBJECT_SIZE))!= 0 )
+	
+	while( (nread=Rio_readnb(&srio,temp,MAXLINE))!= 0 )
 	{
 		fprintf(stderr,"While loop entered \n");
 		if( nread < 0 )
@@ -201,6 +205,21 @@ void process_request(int connfd)
 			if(errno==EPIPE)
 				fprintf(stderr,"Server closed %s \n",strerror(errno));
 		}
+		response_size+=nread;
+		if(response_size<=MAX_OBJECT_SIZE)
+			strcat(response,temp);
+	}
+	if(response_size<=MAX_OBJECT_SIZE)
+	{
+		cnode *new_node=create_node(host,uri,def_port,response,response_size);
+		V(&w);
+		while(present_cache_size + response_size > MAX_CACHE_SIZE)
+			delete_LRU();
+		insert_front(new_node);
+		fprintf(stderr,"New request inserted in cache \n");
+		fprintf(stderr,"total request in cache %d \n",rqst_in_cache);
+		fprintf(stderr,"total cache size %zu \n",present_cache_size);
+		P(&w);
 	}
 	Close(server_fd);
 	free(uri);
