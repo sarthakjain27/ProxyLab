@@ -114,7 +114,7 @@ void process_request(int connfd)
     char *request = Malloc(MAXLINE * sizeof(char));
     char *host = Malloc(MAXLINE * sizeof(char));
 	char *path=Malloc(MAXLINE * sizeof(char));
-	char response[MAX_OBJECT_SIZE];
+	char response[MAX_CACHE_SIZE];
 	strcpy(response,"");
 	int response_size=0;
 	cnode *present_node=NULL;
@@ -131,10 +131,8 @@ void process_request(int connfd)
 		return;
 	}
 	sprintf(defport,"%d",def_port);
-	
-	fprintf(stderr,"Checking for presence of request in cache \n");
+
 	fprintf(stderr,"%s \n",request);
-	fprintf(stderr,"Calling check presence function \n");
 	
 	P(&mutex);
 	readcnt++;
@@ -193,7 +191,7 @@ void process_request(int connfd)
 		return;
     }
 	ssize_t nread;
-	char temp[MAX_OBJECT_SIZE];
+	char temp[MAX_CACHE_SIZE];
 	fprintf(stderr,"entering loop to read response from server \n");
 	
 	while( (nread=Rio_readnb(&srio,temp,MAXLINE))!= 0 )
@@ -214,7 +212,6 @@ void process_request(int connfd)
 				fprintf(stderr,"Server closed %s \n",strerror(errno));
 		}
 		response_size+=nread;
-		fprintf(stderr,"nread %zu and response_size %d \n",nread,response_size);
 		if(response_size<=MAX_OBJECT_SIZE)
 			strcat(response,temp);
 	}
@@ -225,7 +222,7 @@ void process_request(int connfd)
 		while(present_cache_size + response_size > MAX_CACHE_SIZE)
 			delete_LRU();
 		insert_front(new_node);
-		fprintf(stderr,"New request inserted in cache uri_w/o_path %s path %s port %d\n",uri_without_path,path,def_port);
+		fprintf(stderr,"New request inserted in cache uri_w/o_path %s path %s port %d and size %d\n",uri_without_path,path,def_port,response_size);
 		fprintf(stderr,"total request in cache %d \n",rqst_in_cache);
 		fprintf(stderr,"total cache size %zu \n",present_cache_size);
 		V(&w);
