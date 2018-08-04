@@ -64,16 +64,10 @@ int main(int argc, char** argv)
 	printf("Entering while loop \n");	
 	while(1)
 	{
-		fprintf(stderr,"While loop entered \n");
 		clientlen=sizeof(struct sockaddr_storage);
-		fprintf(stderr,"sizeof done \n");
 		connfdp = Malloc(sizeof(int));
-		fprintf(stderr,"Malloc done \n");
 		*connfdp = Accept(listenfd, (SA *) &clientaddr, &clientlen);
-		fprintf(stderr,"Accept done \n");
-		fprintf(stderr,"Calling pthread_create() in main \n");
 		Pthread_create(&tid, NULL, thread, connfdp);
-		fprintf(stderr,"Returned from pthread_create() in main \n");
 	}
 	
     return 0;
@@ -91,9 +85,7 @@ void *thread(void* vargp)
 	*/ 
 	Pthread_detach(Pthread_self());
 	free(vargp);
-	fprintf(stderr,"Calling process request in thread \n");
 	process_request(connfd);
-	fprintf(stderr,"Returned from process request in thread \n");
 	Close(connfd);
 	return NULL;
 }
@@ -130,7 +122,6 @@ void process_request(int connfd)
 	fprintf(stderr,"Calling create requesthdrs in process request \n");
 	// Create request hdrs to be sent to server
 	int isGet_rqst=create_requesthdrs(&crio, request, host, uri, &def_port);
-	fprintf(stderr,"Returned from create_requesthdrs in process request with isGet_rqst val %d\n",isGet_rqst);
 	if(!isGet_rqst)
 	{
 		free(uri);
@@ -138,11 +129,10 @@ void process_request(int connfd)
 		free(host);
 		return;
 	}
-	fprintf(stderr,"def port value after rqst hdrs in process request is %d \n",def_port);
 	sprintf(defport,"%d",def_port);
 	
-	
 	fprintf(stderr,"Checking for presence of request in cache \n");
+	fprintf(stderr,"%s \n",request);
 	fprintf(stderr,"Calling check presence function \n");
 	
 	P(&mutex);
@@ -178,9 +168,7 @@ void process_request(int connfd)
 	
 	fprintf(stderr,"Request not present in cache \n");
 	
-	fprintf(stderr,"Calling open_clientfd\n");
 	server_fd=Open_clientfd(host,defport);
-	fprintf(stderr,"returned from open_clientf with server_fd %d\n",server_fd);
 	if(server_fd < 0)
 	{
 		fprintf(stderr,"Couldn't connect to the server with given host %s and def_port %d \n",host,def_port);
@@ -190,7 +178,6 @@ void process_request(int connfd)
 		free(host);
 		return;
 	}
-	fprintf(stderr,"server_fd is not less than 0 \n");
 	Rio_readinitb(&srio, server_fd);
 	fprintf(stderr,"writing the request headers to server %s\n",request);
 	if ((size_t) rio_writen(server_fd, request, strlen(request)) != strlen(request)) 
@@ -204,7 +191,6 @@ void process_request(int connfd)
 		free(host);
 		return;
     }
-	fprintf(stderr,"Request written to server. \n");
 	ssize_t nread;
 	char temp[MAX_OBJECT_SIZE];
 	fprintf(stderr,"entering loop to read response from server \n");
@@ -227,6 +213,7 @@ void process_request(int connfd)
 				fprintf(stderr,"Server closed %s \n",strerror(errno));
 		}
 		response_size+=nread;
+		fprintf(stderr,"nread %zu and response_size %d \n",nread,response_size);
 		if(response_size<=MAX_OBJECT_SIZE)
 			strcat(response,temp);
 	}
@@ -287,53 +274,41 @@ int create_requesthdrs(rio_t *rio, char *request, char *host, char *uri, int *de
 	
 	//call function to separate host, uri, port
 	parse_uri(uri,host,&port_in_url,uri_without_host);
-	fprintf(stderr,"Passed values are %s %s %s %d %s \n", uri, method, host, port_in_url, uri_without_host);
 	sprintf(request,"%s %s %s",method,uri_without_host,default_version);
 	
 	strcat(request,header_user_agent);
 	strcat(request,connection_hdr);
 	strcat(request,proxy_connection_hdr);
 	
-	fprintf(stderr,"Request before strcmp in create_rqsthdrs is %s\n",request);
-	fprintf(stderr,"value of buf in strcmp of create_rqst hdrs is %s \n",buf);
 	while(strcmp(buf,"\r\n"))
 	{
-		fprintf(stderr,"While loop entered \n");	
 		*key='\0';
 		*value='\0';
 		*key_colon='\0';
 		memset(key,'\0',sizeof(key));
 		memset(key_colon,'\0',sizeof(key_colon));
 		memset(value,'\0',sizeof(value));
-		fprintf(stderr,"Calling rio_readlineb\n");
 		if( rio_readlineb(rio,buf,MAXLINE)<0 )
 		{
 			fprintf(stderr,"ReadLineb error in while of create_requesthdrs \n");
 			return 0;
 		}
-		fprintf(stderr,"Returned from rio readlineb with buf value %s and length %zu\n",buf,strlen(buf));
 		if(!(strcmp(buf,"\r\n")))
 			break;
 		
-		fprintf(stderr,"Calling get other header key_colon %s\n",key_colon);
 		sscanf(buf,"%s %s",key_colon,value);
-		fprintf(stderr,"key_colon after scanf %s and value %s\n",key_colon,value);
 		if(*key_colon!='\0' && strchr(key_colon,':')!=NULL)
 			strncpy(key,key_colon,strlen(key_colon)-1);
-		fprintf(stderr,"Returned from get other header with buf %s key %s value %s \n",buf,key,value);
 		if(*key!='\0' && *value!='\0')
 		{
 			if(!strcmp(key,"Host"))
 			{
-				fprintf(stderr,"Calling get host port header \n");
 				get_host_port_header(value,host,&port_in_url);
-				fprintf(stderr,"Returned from host port header %s %d\n",host,port_in_url);
 				host_passed_header=1;
 			}
 			if(strcmp(key,"User-Agent") && strcmp(key,"Connection") && strcmp(key,"Proxy-Connection"))
 			{
 				sprintf(headerline,"%s: %s\r\n",key,value);
-				fprintf(stderr,"Headerline %s and len %zu\n",headerline,strlen(headerline));
 				strcat(request,headerline);
 			}
 		}
@@ -369,18 +344,15 @@ void parse_uri(char *uri, char *host, int *port_in_url, char *uri_without_host)
 		//make '/' after port to 0 so that strcpy thinks it is NULL character and only return val till that;
 		*slash_ptr=0;
 		strcpy(host_without_uri,host_start_ptr);
-		fprintf(stderr,"host_without_uri %s \n",host_without_uri);
 		
 		*slash_ptr='/';
 		strcpy(uri_without_host,slash_ptr);
-		fprintf(stderr,"uri_without_host %s\n",uri_without_host);
 		
 		port_start_ptr=strchr(host_without_uri,':');
 		if(port_start_ptr!=NULL)
 		{
 			*slash_ptr=0;
 			strcpy(port_extract, port_start_ptr + 1);
-			fprintf(stderr,"Port_extract %s \n",port_extract);
 			*port_in_url=atoi(port_extract);
 		}
 		strcpy(host,host_without_uri);
@@ -395,23 +367,17 @@ void parse_uri(char *uri, char *host, int *port_in_url, char *uri_without_host)
 */ 
 void get_host_port_header(char *value, char *host, int *port_in_header)
 {
-	fprintf(stderr,"host port header() entered with value %s host %s and port %d \n",value,host,*port_in_header);
 	char *colon=strchr(value,':');
-	fprintf(stderr,"colon ptr at %s",colon);
 	char port_val[MAXLINE];
 	*port_val=0;
 	if(colon!=NULL)
 	{
-		fprintf(stderr,"if entered \n");
 		*colon=0;
 		strcpy(host,value);
-		fprintf(stderr,"host now is %s",host);
 		*colon=':';
 		strcpy(port_val,colon+1);
-		fprintf(stderr,"port now is %s",port_val);
 		*port_in_header=atoi(port_val);
 	}
-	fprintf(stderr,"returning from host port header \n");
 }
 
 cnode * check_presence_cache(char *host,char *uri,int def_port)
