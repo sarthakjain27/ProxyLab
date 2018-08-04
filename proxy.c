@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <strings.h>
 #include <string.h>
+#include <semaphore.h>
 
 /* Recommended max cache and object sizes */
 #define MAX_CACHE_SIZE (1024*1024)
