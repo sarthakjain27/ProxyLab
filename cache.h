@@ -23,7 +23,7 @@ extern volatile size_t present_cache_size;
 extern volatile int readcnt;
 extern sem_t mutex,w;
 
-void cache_init();
+void cache_initial();
 cnode *check(char *host,char *uri,int def_port);
 void delete_node(cnode *node);
 void insert_front(cnode *node);
