@@ -119,7 +119,7 @@ void process_request(int connfd)
 	cnode *present_node=NULL;
 	Rio_readinitb(&crio, connfd);
 	int found_in_cache=0;
-	fprintf(stderr,"Calling create requesthdrs in process request \n");
+	int node_no=1;
 	// Create request hdrs to be sent to server
 	int isGet_rqst=create_requesthdrs(&crio, request, host, uri, &def_port);
 	if(!isGet_rqst)
@@ -130,6 +130,21 @@ void process_request(int connfd)
 		return;
 	}
 	sprintf(defport,"%d",def_port);
+	
+	P(&mutex);
+	P(&w);
+	fprintf(stderr,"Below is cache\n");
+	for(cnode *i=head;i;i=i->next)
+	{
+		fprintf(stderr,"------Node %d starts-----\n",node_no);
+		fprintf(stderr,"Hostname: %s\n",i->hostname);
+		fprintf(stderr,"Pathname: %s\n",i->pathname);
+		fprintf(stderr,"Port: %d\n",i->port);
+		fprintf(stderr,"Size: %zu \n",i->node_size);
+		fprintf(stderr,"------Node %d ends-----\n",node_no);
+	}
+	V(&w);
+	V(&mutex);
 	
 	fprintf(stderr,"Checking for presence of request in cache \n");
 	fprintf(stderr,"%s \n",request);
