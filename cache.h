@@ -4,6 +4,10 @@
 #ifndef __CACHE_H__
 #define __CACHE_H__
 
+#include "csapp.h"
+#inlcude<semaphor.h>
+
+
 #define MAX_CACHE_SIZE (1024*1024)
 #define MAX_OBJECT_SIZE (100*1024)
 
