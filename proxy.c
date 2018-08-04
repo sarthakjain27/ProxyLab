@@ -120,7 +120,6 @@ void process_request(int connfd)
 	cnode *present_node=NULL;
 	Rio_readinitb(&crio, connfd);
 	int found_in_cache=0;
-	int node_no=1;
 	// Create request hdrs to be sent to server
 	int isGet_rqst=create_requesthdrs(&crio, request, host, uri_without_path, path ,&def_port);
 	fprintf(stderr,"host %s uri %s def_port %d\n",host,uri_without_path,def_port);
@@ -132,22 +131,6 @@ void process_request(int connfd)
 		return;
 	}
 	sprintf(defport,"%d",def_port);
-	
-	P(&mutex);
-	P(&w);
-	fprintf(stderr,"Below is cache\n");
-	for(cnode *i=head;i;i=i->next)
-	{
-		fprintf(stderr,"------Node %d starts-----\n",node_no);
-		fprintf(stderr,"Hostname: %s\n",i->hostname);
-		fprintf(stderr,"Pathname: %s\n",i->pathname);
-		fprintf(stderr,"Port: %d\n",i->port);
-		fprintf(stderr,"Size: %zu \n",i->node_size);
-		fprintf(stderr,"------Node %d ends-----\n",node_no);
-		node_no++;
-	}
-	V(&w);
-	V(&mutex);
 	
 	fprintf(stderr,"Checking for presence of request in cache \n");
 	fprintf(stderr,"%s \n",request);
@@ -242,7 +225,7 @@ void process_request(int connfd)
 		while(present_cache_size + response_size > MAX_CACHE_SIZE)
 			delete_LRU();
 		insert_front(new_node);
-		fprintf(stderr,"New request inserted in cache \n");
+		fprintf(stderr,"New request inserted in cache uri_w/o_path %s path %s port %d\n",uri_without_path,path,def_port);
 		fprintf(stderr,"total request in cache %d \n",rqst_in_cache);
 		fprintf(stderr,"total cache size %zu \n",present_cache_size);
 		V(&w);
