@@ -14,6 +14,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "cache.h"
+#include <strings.h>
+#include <string.h>
+#include "csapp.h"
+#include <semaphore.h>
 
 cnode *head,*tail;
 int rqst_in_cache;
@@ -62,6 +66,7 @@ cnode * create_node(char *hostname, char *pathname, int port, char *response, si
 	node->node_size=response_size;
 	node->next=NULL;
 	node->prev=NULL;
+	return node;
 }
 
 //Function to delete a node from cache
@@ -118,5 +123,5 @@ void insert_front(cnode *node)
 //function to delete least recently used request from list
 void delete_LRU()
 {
-	delete(tail);
+	delete_node(tail);
 }
