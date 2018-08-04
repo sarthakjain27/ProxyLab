@@ -29,3 +29,5 @@ void delete_node(cnode *node);
 void insert_front(cnode *node);
 cnode *create_node(char *hostname, char *pathname, int port, char *response, size_t response_size);
 void delete_LRU();
+
+#endif /* __CACHE_H__ */
