@@ -126,7 +126,7 @@ void process_request(int connfd)
 	int response_size=0;
 	cnode *present_node=NULL;
 	Rio_readinitb(&crio, connfd);
-	
+	int found_in_cache=0;
 	fprintf(stderr,"Calling create requesthdrs in process request \n");
 	// Create request hdrs to be sent to server
 	int isGet_rqst=create_requesthdrs(&crio, request, host, uri, &def_port);
@@ -144,11 +144,16 @@ void process_request(int connfd)
 	
 	fprintf(stderr,"Checking for presence of request in cache \n");
 	fprintf(stderr,"Calling check presence function \n");
+	
+	P(&mutex);
+	readcnt++;
+	if(readcnt==1)
+		P(&w);
+	V(&mutex);
 	present_node=check_presence_cache(host,uri,def_port);
 	fprintf(stderr,"Returned from check presence with present node %p\n",present_node);
 	if(present_node)
 	{
-		P(&w);
 		fprintf(stderr,"Request present in cache \n");
 		fprintf(stderr,"Calling delete node \n");
 		delete_node(present_node);
@@ -161,9 +166,16 @@ void process_request(int connfd)
 			if(errno==EPIPE)
 				fprintf(stderr,"Server closed %s \n",strerror(errno));
 		}
-		V(&w);
-		return;
+		found_in_cache=1;
 	}
+	P(&mutex);
+	readcnt--;
+	if(readcnt==0)
+		V(&w);
+	V(&mutex);
+	if(found_in_cache)
+		return;
+	
 	fprintf(stderr,"Request not present in cache \n");
 	
 	fprintf(stderr,"Calling open_clientfd\n");
@@ -405,19 +417,7 @@ void get_host_port_header(char *value, char *host, int *port_in_header)
 cnode * check_presence_cache(char *host,char *uri,int def_port)
 {
 	cnode *node=NULL;
-	P(&mutex);
-	readcnt++;
-	if(readcnt==1)
-		P(&w);
-	V(&mutex);
-	
 	node=check(host,uri,def_port);
-	
-	P(&mutex);
-	readcnt--;
-	if(readcnt==0)
-		V(&w);
-	V(&mutex);
 	return node;
 }
 
