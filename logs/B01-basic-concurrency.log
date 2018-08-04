@@ -1,21 +1,21 @@
->proxy temp/proxyProxy set up at localhost:24776
+>proxy temp/proxyProxy set up at localhost:7496
 >source '/afs/andrew.cmu.edu/usr18/sarthak3/proxylab-m18-sarthakjain27/tests/B01-basic-concurrency.cmd'># Test ability to handle out-of-order requests
 >serve s1
-Server s1 running at localhost:24777
+Server s1 running at localhost:7497
 >generate random-text1.txt 2K 
 >generate random-text2.txt 4K 
 >request r1 random-text1.txt s1
-Client: Requesting '/random-text1.txt' from localhost:24777
-Proxy stderr: host localhost uri http://localhost:24777 def_port 24777
+Client: Requesting '/random-text1.txt' from localhost:7497
 >request r2 random-text2.txt s1
-Client: Requesting '/random-text2.txt' from localhost:24777
+Client: Requesting '/random-text2.txt' from localhost:7497
+Proxy stderr: host localhost uri http://localhost:7497 def_port 7497
 Proxy stderr: Checking for presence of request in cache
 Proxy stderr: GET /random-text1.txt HTTP/1.0
->delay 100
 Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
 Proxy stderr: Connection: close
 Proxy stderr: Proxy-Connection: close
-Proxy stderr: Host: localhost:24777
+>delay 100
+Proxy stderr: Host: localhost:7497
 Proxy stderr: Request-ID: r1
 Proxy stderr: Response: Deferred
 Proxy stderr: 
@@ -27,19 +27,19 @@ Proxy stderr: writing the request headers to server GET /random-text1.txt HTTP/1
 Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
 Proxy stderr: Connection: close
 Proxy stderr: Proxy-Connection: close
-Proxy stderr: Host: localhost:24777
+Proxy stderr: Host: localhost:7497
 Proxy stderr: Request-ID: r1
 Proxy stderr: Response: Deferred
 Proxy stderr: 
 Proxy stderr: 
 Proxy stderr: entering loop to read response from server
-Proxy stderr: host localhost uri http://localhost:24777 def_port 24777
+Proxy stderr: host localhost uri http://localhost:7497 def_port 7497
 Proxy stderr: Checking for presence of request in cache
 Proxy stderr: GET /random-text2.txt HTTP/1.0
 Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
 Proxy stderr: Connection: close
 Proxy stderr: Proxy-Connection: close
-Proxy stderr: Host: localhost:24777
+Proxy stderr: Host: localhost:7497
 Proxy stderr: Request-ID: r2
 Proxy stderr: Response: Deferred
 Proxy stderr: 
@@ -51,7 +51,7 @@ Proxy stderr: writing the request headers to server GET /random-text2.txt HTTP/1
 Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
 Proxy stderr: Connection: close
 Proxy stderr: Proxy-Connection: close
-Proxy stderr: Host: localhost:24777
+Proxy stderr: Host: localhost:7497
 Proxy stderr: Request-ID: r2
 Proxy stderr: Response: Deferred
 Proxy stderr: 
@@ -63,13 +63,13 @@ Server responded to request r2 with status ok
 Server responded to request r1 with status ok
 >delay 200
 Proxy stderr: While loop entered
-Proxy stderr: nread 4108 and response_size 4108
-Proxy stderr: New request inserted in cache uri_w/o_path http://localhost:24777 path /random-text2.txt port 24777
-Proxy stderr: total request in cache 1
-Proxy stderr: total cache size 4108
 Proxy stderr: While loop entered
+Proxy stderr: nread 4108 and response_size 4108
 Proxy stderr: nread 2108 and response_size 2108
-Proxy stderr: New request inserted in cache uri_w/o_path http://localhost:24777 path /random-text1.txt port 24777
+Proxy stderr: New request inserted in cache uri_w/o_path http://localhost:7497 path /random-text1.txt port 7497 and size 2108
+Proxy stderr: total request in cache 1
+Proxy stderr: total cache size 2108
+Proxy stderr: New request inserted in cache uri_w/o_path http://localhost:7497 path /random-text2.txt port 7497 and size 4108
 Proxy stderr: total request in cache 2
 Proxy stderr: total cache size 6216
 >check r1
