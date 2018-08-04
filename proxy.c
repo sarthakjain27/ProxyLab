@@ -23,7 +23,7 @@ static const char *proxy_connection_hdr = "Proxy-Connection: close\r\n";
 void SIGPIPE_HNDLR();
 void *thread(void* vargp);
 void process_request(int connfd);
-int create_requesthdrs(rio_t *rio, char *request, char *host, char *uri, int *def_port);
+int create_requesthdrs(rio_t *rio, char *request, char *host, char *uri, char *path,int *def_port);
 void parse_uri(char *uri, char *host, int *port_in_url, char *uri_without_host);
 void get_host_port_header(char *value, char *host, int *port_in_header);
 cnode * check_presence_cache(char *host,char *uri,int def_port);
@@ -110,9 +110,10 @@ void process_request(int connfd)
 	char defport[MAXLINE];
 	rio_t crio,srio;
 	
-	char *uri = Malloc(MAXLINE * sizeof(char));
+	char *uri_without_path = Malloc(MAXLINE * sizeof(char));
     char *request = Malloc(MAXLINE * sizeof(char));
     char *host = Malloc(MAXLINE * sizeof(char));
+	char *path=Malloc(MAXLINE * sizeof(char));
 	char response[MAX_OBJECT_SIZE];
 	strcpy(response,"");
 	int response_size=0;
@@ -121,10 +122,11 @@ void process_request(int connfd)
 	int found_in_cache=0;
 	int node_no=1;
 	// Create request hdrs to be sent to server
-	int isGet_rqst=create_requesthdrs(&crio, request, host, uri, &def_port);
+	int isGet_rqst=create_requesthdrs(&crio, request, host, uri_without_path, path ,&def_port);
+	fprintf(stderr,"host %s uri %s def_port %d\n",host,uri_without_path,def_port);
 	if(!isGet_rqst)
 	{
-		free(uri);
+		free(uri_without_path);
 		free(request);
 		free(host);
 		return;
@@ -142,6 +144,7 @@ void process_request(int connfd)
 		fprintf(stderr,"Port: %d\n",i->port);
 		fprintf(stderr,"Size: %zu \n",i->node_size);
 		fprintf(stderr,"------Node %d ends-----\n",node_no);
+		node_no++;
 	}
 	V(&w);
 	V(&mutex);
@@ -155,7 +158,7 @@ void process_request(int connfd)
 	if(readcnt==1)
 		P(&w);
 	V(&mutex);
-	present_node=check_presence_cache(host,uri,def_port);
+	present_node=check_presence_cache(uri_without_path,path,def_port);
 	fprintf(stderr,"Returned from check presence with present node %p\n",present_node);
 	if(present_node)
 	{
@@ -188,7 +191,7 @@ void process_request(int connfd)
 	{
 		fprintf(stderr,"Couldn't connect to the server with given host %s and def_port %d \n",host,def_port);
 		client_error(connfd,host,"404","Page Not Found","Built Proxy couldn't connect to this server");
-		free(uri);
+		free(uri_without_path);
 		free(request);
 		free(host);
 		return;
@@ -201,7 +204,7 @@ void process_request(int connfd)
 		if(errno==EPIPE)
 			fprintf(stderr,"Server closed %s \n",strerror(errno));
 		Close(server_fd);
-		free(uri);
+		free(uri_without_path);
 		free(request);
 		free(host);
 		return;
@@ -216,7 +219,7 @@ void process_request(int connfd)
 		if( nread < 0 )
 		{
 			client_error(connfd,host,"404","Page Not Found","Built Proxy couldn't connect to this server");
-			free(uri);
+			free(uri_without_path);
 			free(request);
 			free(host);
 			return;
@@ -234,7 +237,7 @@ void process_request(int connfd)
 	}
 	if(response_size<=MAX_OBJECT_SIZE)
 	{
-		cnode *new_node=create_node(host,uri,def_port,response,response_size);
+		cnode *new_node=create_node(uri_without_path,path,def_port,response,response_size);
 		P(&w);
 		while(present_cache_size + response_size > MAX_CACHE_SIZE)
 			delete_LRU();
@@ -245,7 +248,7 @@ void process_request(int connfd)
 		V(&w);
 	}
 	Close(server_fd);
-	free(uri);
+	free(uri_without_path);
 	free(request);
 	free(host);
 	return;
@@ -260,11 +263,10 @@ void process_request(int connfd)
 * that might already be in the input.
 * 
 */
-int create_requesthdrs(rio_t *rio, char *request, char *host, char *uri, int *def_port)
+int create_requesthdrs(rio_t *rio, char *request, char *host, char *uri, char *path ,int *def_port)
 {
 	int port_in_url=80;
 	char buf[MAXLINE];
-	char uri_without_host[MAXLINE];
 	char method[MAXLINE];
 	char version[MAXLINE];
 	char key[MAXLINE];
@@ -288,8 +290,8 @@ int create_requesthdrs(rio_t *rio, char *request, char *host, char *uri, int *de
 		return 0;
 	
 	//call function to separate host, uri, port
-	parse_uri(uri,host,&port_in_url,uri_without_host);
-	sprintf(request,"%s %s %s",method,uri_without_host,default_version);
+	parse_uri(uri,host,&port_in_url,path);
+	sprintf(request,"%s %s %s",method,path,default_version);
 	
 	strcat(request,header_user_agent);
 	strcat(request,connection_hdr);

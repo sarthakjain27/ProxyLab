@@ -1,0 +1,939 @@
+>proxy temp/proxyProxy set up at localhost:6384
+>source '/afs/andrew.cmu.edu/usr18/sarthak3/proxylab-m18-sarthakjain27/tests/B07-mix1.cmd'># Test ability to handle mix of requests and fetches, with missing and present binary and text files
+>serve s1 s2 s3
+Server s1 running at localhost:6385
+Server s2 running at localhost:6386
+Server s3 running at localhost:6387
+>generate random-text1.txt 10k
+>generate random-binary1.bin 10k
+>generate random-text2.txt 100k
+>generate random-binary2.bin 100k
+>generate random-text3.txt 1m
+>generate random-binary3.bin 1m
+>request r1 random-text1.txt s1
+Client: Requesting '/random-text1.txt' from localhost:6385
+>request r2 random-binary2.bin s2
+Client: Requesting '/random-binary2.bin' from localhost:6386
+Proxy stderr: host localhost uri http://localhost:6385 def_port 6385
+Proxy stderr: Below is cache
+Proxy stderr: Checking for presence of request in cache
+>request r3 nothing.txt s3
+Client: Requesting '/nothing.txt' from localhost:6387
+Proxy stderr: GET /random-text1.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+>request r4 random-binary2.bin s1
+Client: Requesting '/random-binary2.bin' from localhost:6385
+Proxy stderr: Host: localhost:6385
+Proxy stderr: Request-ID: r1
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+>request r5 random-text3.txt s2
+Proxy stderr: 
+Proxy stderr: Calling check presence function
+Client: Requesting '/random-text3.txt' from localhost:6386
+Proxy stderr: Returned from check presence with present node (nil)
+Proxy stderr: Request not present in cache
+Proxy stderr: writing the request headers to server GET /random-text1.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6385
+Proxy stderr: Request-ID: r1
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+>request r6 nothing.txt s3
+Proxy stderr: 
+Client: Requesting '/nothing.txt' from localhost:6387
+Proxy stderr: entering loop to read response from server
+Proxy stderr: host localhost uri http://localhost:6386 def_port 6386
+Proxy stderr: Below is cache
+Proxy stderr: Checking for presence of request in cache
+Proxy stderr: GET /random-binary2.bin HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+>request r7 random-text2.txt s1
+Proxy stderr: Connection: close
+Client: Requesting '/random-text2.txt' from localhost:6385
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6386
+Proxy stderr: Request-ID: r2
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+>request r8 random-binary3.bin s2
+Proxy stderr: Calling check presence function
+Client: Requesting '/random-binary3.bin' from localhost:6386
+Proxy stderr: Returned from check presence with present node (nil)
+Proxy stderr: Request not present in cache
+Proxy stderr: writing the request headers to server GET /random-binary2.bin HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+>request r9 nothing.txt s3
+Client: Requesting '/nothing.txt' from localhost:6387
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6386
+Proxy stderr: Request-ID: r2
+Proxy stderr: Response: Deferred
+>delay 100
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: entering loop to read response from server
+Proxy stderr: host localhost uri http://localhost:6387 def_port 6387
+Proxy stderr: Below is cache
+Proxy stderr: Checking for presence of request in cache
+Proxy stderr: GET /nothing.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6387
+Proxy stderr: Request-ID: r3
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: Calling check presence function
+Proxy stderr: Returned from check presence with present node (nil)
+Proxy stderr: Request not present in cache
+Proxy stderr: writing the request headers to server GET /nothing.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6387
+Proxy stderr: Request-ID: r3
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: entering loop to read response from server
+Proxy stderr: host localhost uri http://localhost:6385 def_port 6385
+Proxy stderr: Below is cache
+Proxy stderr: Checking for presence of request in cache
+Proxy stderr: GET /random-binary2.bin HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6385
+Proxy stderr: Request-ID: r4
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: Calling check presence function
+Proxy stderr: Returned from check presence with present node (nil)
+Proxy stderr: Request not present in cache
+Proxy stderr: writing the request headers to server GET /random-binary2.bin HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6385
+Proxy stderr: Request-ID: r4
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: entering loop to read response from server
+Proxy stderr: host localhost uri http://localhost:6386 def_port 6386
+Proxy stderr: Below is cache
+Proxy stderr: Checking for presence of request in cache
+Proxy stderr: GET /random-text3.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6386
+Proxy stderr: Request-ID: r5
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: Calling check presence function
+Proxy stderr: Returned from check presence with present node (nil)
+Proxy stderr: Request not present in cache
+Proxy stderr: writing the request headers to server GET /random-text3.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6386
+Proxy stderr: Request-ID: r5
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: entering loop to read response from server
+Proxy stderr: host localhost uri http://localhost:6387 def_port 6387
+Proxy stderr: Below is cache
+Proxy stderr: Checking for presence of request in cache
+Proxy stderr: GET /nothing.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6387
+Proxy stderr: Request-ID: r6
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: Calling check presence function
+Proxy stderr: Returned from check presence with present node (nil)
+Proxy stderr: Request not present in cache
+Proxy stderr: writing the request headers to server GET /nothing.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6387
+Proxy stderr: Request-ID: r6
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: entering loop to read response from server
+Proxy stderr: host localhost uri http://localhost:6385 def_port 6385
+Proxy stderr: Below is cache
+Proxy stderr: Checking for presence of request in cache
+Proxy stderr: GET /random-text2.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6385
+Proxy stderr: Request-ID: r7
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: Calling check presence function
+Proxy stderr: Returned from check presence with present node (nil)
+Proxy stderr: Request not present in cache
+Proxy stderr: writing the request headers to server GET /random-text2.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6385
+Proxy stderr: Request-ID: r7
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: entering loop to read response from server
+Proxy stderr: host localhost uri http://localhost:6386 def_port 6386
+Proxy stderr: Below is cache
+Proxy stderr: Checking for presence of request in cache
+Proxy stderr: GET /random-binary3.bin HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6386
+Proxy stderr: Request-ID: r8
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: Calling check presence function
+Proxy stderr: Returned from check presence with present node (nil)
+Proxy stderr: Request not present in cache
+Proxy stderr: writing the request headers to server GET /random-binary3.bin HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6386
+Proxy stderr: Request-ID: r8
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: entering loop to read response from server
+Proxy stderr: host localhost uri http://localhost:6387 def_port 6387
+Proxy stderr: Below is cache
+Proxy stderr: Checking for presence of request in cache
+Proxy stderr: GET /nothing.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6387
+Proxy stderr: Request-ID: r9
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: Calling check presence function
+Proxy stderr: Returned from check presence with present node (nil)
+Proxy stderr: Request not present in cache
+Proxy stderr: writing the request headers to server GET /nothing.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6387
+Proxy stderr: Request-ID: r9
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: entering loop to read response from server
+>respond r1 r2 r3 r4 r5 r6 r7 r8 r9
+Server responded to request r1 with status ok
+Server responded to request r2 with status ok
+Server responded to request r3 with status not_found (File 'nothing.txt' not found)
+Server responded to request r4 with status ok
+Server responded to request r5 with status ok
+Proxy stderr: While loop entered
+Server responded to request r6 with status not_found (File 'nothing.txt' not found)
+Server responded to request r7 with status ok
+Proxy stderr: nread 267 and response_size 267
+Server responded to request r8 with status ok
+Proxy stderr: New request inserted in cache
+Server responded to request r9 with status not_found (File 'nothing.txt' not found)
+># These won't hit cache, since they use different servers
+>fetch f1 random-text1.txt s2
+Proxy stderr: total request in cache 1
+Client: Fetching '/random-text1.txt' from localhost:6386
+Proxy stderr: total cache size 267
+Proxy stderr: While loop entered
+Proxy stderr: nread 267 and response_size 267
+Proxy stderr: New request inserted in cache
+Proxy stderr: total request in cache 2
+Proxy stderr: total cache size 534
+>fetch f2 random-binary2.bin s3
+Client: Fetching '/random-binary2.bin' from localhost:6387
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 8192
+Proxy stderr: While loop entered
+>fetch f3 nothing.txt s1
+Proxy stderr: nread 8192 and response_size 8192
+Proxy stderr: While loop entered
+Client: Fetching '/nothing.txt' from localhost:6385
+Proxy stderr: nread 1917 and response_size 10109
+Proxy stderr: New request inserted in cache
+Proxy stderr: total request in cache 3
+>fetch f4 random-binary2.bin s2
+Proxy stderr: total cache size 10643
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 8192
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 16384
+Client: Fetching '/random-binary2.bin' from localhost:6386
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 8192
+>fetch f5 random-text3.txt s3
+Proxy stderr: While loop entered
+Proxy stderr: nread 267 and response_size 267
+Proxy stderr: New request inserted in cache
+Proxy stderr: total request in cache 4
+Client: Fetching '/random-text3.txt' from localhost:6387
+Proxy stderr: total cache size 10910
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 8192
+>fetch f6 nothing.txt s1
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 8192
+Proxy stderr: host localhost uri http://localhost:6386 def_port 6386
+Client: Fetching '/nothing.txt' from localhost:6385
+Proxy stderr: Below is cache
+Proxy stderr: ------Node 1 starts-----
+Proxy stderr: Hostname: http://localhost:6387
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6387
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 1 ends-----
+Proxy stderr: ------Node 2 starts-----
+Proxy stderr: Hostname: http://localhost:6385
+>fetch f7 random-text2.txt s2
+Client: Fetching '/random-text2.txt' from localhost:6386
+Proxy stderr: Pathname: /random-text1.txt
+Proxy stderr: Port: 6385
+Proxy stderr: Size: 10109
+Proxy stderr: ------Node 2 ends-----
+>fetch f8 random-binary3.bin s3
+Client: Fetching '/random-binary3.bin' from localhost:6387
+Proxy stderr: ------Node 3 starts-----
+Proxy stderr: Hostname: http://localhost:6387
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6387
+Proxy stderr: Size: 267
+>fetch f9 nothing.txt s1
+Proxy stderr: ------Node 3 ends-----
+Client: Fetching '/nothing.txt' from localhost:6385
+Proxy stderr: ------Node 4 starts-----
+Proxy stderr: Hostname: http://localhost:6387
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6387
+>delay 300
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 4 ends-----
+Proxy stderr: Checking for presence of request in cache
+Proxy stderr: GET /random-text1.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6386
+Proxy stderr: Request-ID: f1
+Proxy stderr: Response: Immediate
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: Calling check presence function
+Proxy stderr: Returned from check presence with present node (nil)
+Proxy stderr: Request not present in cache
+Proxy stderr: writing the request headers to server GET /random-text1.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6386
+Proxy stderr: Request-ID: f1
+Proxy stderr: Response: Immediate
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: entering loop to read response from server
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 16384
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 16384
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 16384
+Proxy stderr: host localhost uri http://localhost:6387 def_port 6387
+Proxy stderr: Below is cache
+Proxy stderr: ------Node 1 starts-----
+Proxy stderr: Hostname: http://localhost:6387
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6387
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 1 ends-----
+Proxy stderr: ------Node 2 starts-----
+Proxy stderr: Hostname: http://localhost:6385
+Proxy stderr: Pathname: /random-text1.txt
+Proxy stderr: Port: 6385
+Proxy stderr: Size: 10109
+Proxy stderr: ------Node 2 ends-----
+Proxy stderr: ------Node 3 starts-----
+Proxy stderr: Hostname: http://localhost:6387
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6387
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 3 ends-----
+Proxy stderr: ------Node 4 starts-----
+Proxy stderr: Hostname: http://localhost:6387
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6387
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 4 ends-----
+Proxy stderr: Checking for presence of request in cache
+Proxy stderr: GET /random-binary2.bin HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6387
+Proxy stderr: Request-ID: f2
+Proxy stderr: Response: Immediate
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: Calling check presence function
+Proxy stderr: Returned from check presence with present node (nil)
+Proxy stderr: Request not present in cache
+Proxy stderr: writing the request headers to server GET /random-binary2.bin HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6387
+Proxy stderr: Request-ID: f2
+Proxy stderr: Response: Immediate
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: entering loop to read response from server
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 16384
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 24576
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 24576
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 32768
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 40960
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 8192
+Proxy stderr: While loop entered
+Proxy stderr: nread 1917 and response_size 10109
+Proxy stderr: New request inserted in cache
+Proxy stderr: total request in cache 5
+Proxy stderr: total cache size 21019
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 8192
+Proxy stderr: host localhost uri http://localhost:6385 def_port 6385
+Proxy stderr: Below is cache
+Proxy stderr: ------Node 1 starts-----
+Proxy stderr: Hostname: http://localhost:6386
+Proxy stderr: Pathname: /random-text1.txt
+Proxy stderr: Port: 6386
+Proxy stderr: Size: 10109
+Proxy stderr: ------Node 1 ends-----
+Proxy stderr: ------Node 2 starts-----
+Proxy stderr: Hostname: http://localhost:6387
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6387
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 2 ends-----
+Proxy stderr: ------Node 3 starts-----
+Proxy stderr: Hostname: http://localhost:6385
+Proxy stderr: Pathname: /random-text1.txt
+Proxy stderr: Port: 6385
+Proxy stderr: Size: 10109
+Proxy stderr: ------Node 3 ends-----
+Proxy stderr: ------Node 4 starts-----
+Proxy stderr: Hostname: http://localhost:6387
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6387
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 4 ends-----
+Proxy stderr: ------Node 5 starts-----
+Proxy stderr: Hostname: http://localhost:6387
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6387
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 5 ends-----
+Proxy stderr: Checking for presence of request in cache
+Proxy stderr: GET /nothing.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6385
+Proxy stderr: Request-ID: f3
+Proxy stderr: Response: Immediate
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: Calling check presence function
+Proxy stderr: Returned from check presence with present node (nil)
+Proxy stderr: Request not present in cache
+Proxy stderr: writing the request headers to server GET /nothing.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6385
+Proxy stderr: Request-ID: f3
+Proxy stderr: Response: Immediate
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: entering loop to read response from server
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 32768
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 40960
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 24576
+Proxy stderr: nread 8192 and response_size 24576
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 32768
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 32768
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 40960
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 16384
+Proxy stderr: While loop entered
+Proxy stderr: nread 267 and response_size 267
+Proxy stderr: New request inserted in cache
+Proxy stderr: total request in cache 6
+Proxy stderr: total cache size 21286
+Proxy stderr: host localhost uri http://localhost:6386 def_port 6386
+Proxy stderr: Below is cache
+Proxy stderr: ------Node 1 starts-----
+Proxy stderr: Hostname: http://localhost:6385
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6385
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 1 ends-----
+Proxy stderr: ------Node 2 starts-----
+Proxy stderr: Hostname: http://localhost:6386
+Proxy stderr: Pathname: /random-text1.txt
+Proxy stderr: Port: 6386
+Proxy stderr: Size: 10109
+Proxy stderr: ------Node 2 ends-----
+Proxy stderr: ------Node 3 starts-----
+Proxy stderr: Hostname: http://localhost:6387
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6387
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 3 ends-----
+Proxy stderr: ------Node 4 starts-----
+Proxy stderr: Hostname: http://localhost:6385
+Proxy stderr: Pathname: /random-text1.txt
+Proxy stderr: Port: 6385
+Proxy stderr: Size: 10109
+Proxy stderr: ------Node 4 ends-----
+Proxy stderr: ------Node 5 starts-----
+Proxy stderr: Hostname: http://localhost:6387
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6387
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 5 ends-----
+Proxy stderr: ------Node 6 starts-----
+Proxy stderr: Hostname: http://localhost:6387
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6387
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 6 ends-----
+Proxy stderr: Checking for presence of request in cache
+Proxy stderr: GET /random-binary2.bin HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6386
+Proxy stderr: Request-ID: f4
+Proxy stderr: Response: Immediate
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: Calling check presence function
+Proxy stderr: Returned from check presence with present node (nil)
+Proxy stderr: Request not present in cache
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 49152
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 57344
+Proxy stderr: writing the request headers to server GET /random-binary2.bin HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6386
+Proxy stderr: Request-ID: f4
+Proxy stderr: Response: Immediate
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: entering loop to read response from server
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 24576
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 32768
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 40960
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 65536
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 40960
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 49152
+Proxy stderr: host localhost uri http://localhost:6387 def_port 6387
+Proxy stderr: Below is cache
+Proxy stderr: ------Node 1 starts-----
+Proxy stderr: Hostname: http://localhost:6385
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6385
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 1 ends-----
+Proxy stderr: ------Node 2 starts-----
+Proxy stderr: Hostname: http://localhost:6386
+Proxy stderr: Pathname: /random-text1.txt
+Proxy stderr: Port: 6386
+Proxy stderr: Size: 10109
+Proxy stderr: ------Node 2 ends-----
+Proxy stderr: ------Node 3 starts-----
+Proxy stderr: Hostname: http://localhost:6387
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6387
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 3 ends-----
+Proxy stderr: ------Node 4 starts-----
+Proxy stderr: Hostname: http://localhost:6385
+Proxy stderr: Pathname: /random-text1.txt
+Proxy stderr: Port: 6385
+Proxy stderr: Size: 10109
+Proxy stderr: ------Node 4 ends-----
+Proxy stderr: ------Node 5 starts-----
+Proxy stderr: Hostname: http://localhost:6387
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6387
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 5 ends-----
+Proxy stderr: ------Node 6 starts-----
+Proxy stderr: Hostname: http://localhost:6387
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6387
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 6 ends-----
+Proxy stderr: Checking for presence of request in cache
+Proxy stderr: GET /random-text3.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6387
+Proxy stderr: Request-ID: f5
+Proxy stderr: Response: Immediate
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: Calling check presence function
+Proxy stderr: Returned from check presence with present node (nil)
+Proxy stderr: Request not present in cache
+Proxy stderr: writing the request headers to server GET /random-text3.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6387
+Proxy stderr: Request-ID: f5
+Proxy stderr: Response: Immediate
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: entering loop to read response from server
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 49152
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 57344
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 8192
+Proxy stderr: host localhost uri http://localhost:6385 def_port 6385
+Proxy stderr: Below is cache
+Proxy stderr: ------Node 1 starts-----
+Proxy stderr: Hostname: http://localhost:6385
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6385
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 1 ends-----
+Proxy stderr: ------Node 2 starts-----
+Proxy stderr: Hostname: http://localhost:6386
+Proxy stderr: Pathname: /random-text1.txt
+Proxy stderr: Port: 6386
+Proxy stderr: Size: 10109
+Proxy stderr: ------Node 2 ends-----
+Proxy stderr: ------Node 3 starts-----
+Proxy stderr: Hostname: http://localhost:6387
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6387
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 3 ends-----
+Proxy stderr: ------Node 4 starts-----
+Proxy stderr: Hostname: http://localhost:6385
+Proxy stderr: Pathname: /random-text1.txt
+Proxy stderr: Port: 6385
+Proxy stderr: Size: 10109
+Proxy stderr: ------Node 4 ends-----
+Proxy stderr: ------Node 5 starts-----
+Proxy stderr: Hostname: http://localhost:6387
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6387
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 5 ends-----
+Proxy stderr: ------Node 6 starts-----
+Proxy stderr: Hostname: http://localhost:6387
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6387
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 6 ends-----
+Proxy stderr: Checking for presence of request in cache
+Proxy stderr: GET /nothing.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6385
+Proxy stderr: Request-ID: f6
+Proxy stderr: Response: Immediate
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: Calling check presence function
+Proxy stderr: Returned from check presence with present node 0x7fab54010c20
+Proxy stderr: Request present in cache
+Proxy stderr: Calling delete node
+Proxy stderr: returned from delete node, calling insert
+Proxy stderr: returned from insert frontWhile loop entered
+Proxy stderr: nread 8192 and response_size 73728
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 81920
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 49152
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 57344
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 49152
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 57344
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 57344
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 65536
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 73728
+Proxy stderr: host localhost uri http://localhost:6386 def_port 6386
+Proxy stderr: Below is cache
+Proxy stderr: ------Node 1 starts-----
+Proxy stderr: Hostname: http://localhost:6385
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6385
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 1 ends-----
+Proxy stderr: ------Node 2 starts-----
+Proxy stderr: Hostname: http://localhost:6386
+Proxy stderr: Pathname: /random-text1.txt
+Proxy stderr: Port: 6386
+Proxy stderr: Size: 10109
+Proxy stderr: ------Node 2 ends-----
+Proxy stderr: ------Node 3 starts-----
+Proxy stderr: Hostname: http://localhost:6387
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6387
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 3 ends-----
+Proxy stderr: ------Node 4 starts-----
+Proxy stderr: Hostname: http://localhost:6385
+Proxy stderr: Pathname: /random-text1.txt
+Proxy stderr: Port: 6385
+Proxy stderr: Size: 10109
+Proxy stderr: ------Node 4 ends-----
+Proxy stderr: ------Node 5 starts-----
+Proxy stderr: Hostname: http://localhost:6387
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6387
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 5 ends-----
+Proxy stderr: ------Node 6 starts-----
+Proxy stderr: Hostname: http://localhost:6387
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6387
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 6 ends-----
+Proxy stderr: Checking for presence of request in cache
+Proxy stderr: GET /random-text2.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6386
+Proxy stderr: Request-ID: f7
+Proxy stderr: Response: Immediate
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: Calling check presence function
+Proxy stderr: Returned from check presence with present node (nil)
+Proxy stderr: Request not present in cache
+Proxy stderr: writing the request headers to server GET /random-text2.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6386
+Proxy stderr: Request-ID: f7
+Proxy stderr: Response: Immediate
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: entering loop to read response from server
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 16384
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 65536
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 73728
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 81920
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 90112
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 98304
+Proxy stderr: While loop entered
+Proxy stderr: nread 1820 and response_size 100124
+Proxy stderr: New request inserted in cache
+Proxy stderr: total request in cache 7
+Proxy stderr: total cache size 121410
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 24576
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 32768
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 40960
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 8192
+Proxy stderr: host localhost uri http://localhost:6387 def_port 6387
+Proxy stderr: Below is cache
+Proxy stderr: ------Node 1 starts-----
+Proxy stderr: Hostname: http://localhost:6386
+Proxy stderr: Pathname: /random-binary2.bin
+Proxy stderr: Port: 6386
+Proxy stderr: Size: 100124
+Proxy stderr: ------Node 1 ends-----
+Proxy stderr: ------Node 2 starts-----
+Proxy stderr: Hostname: http://localhost:6385
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6385
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 2 ends-----
+Proxy stderr: ------Node 3 starts-----
+Proxy stderr: Hostname: http://localhost:6386
+Proxy stderr: Pathname: /random-text1.txt
+Proxy stderr: Port: 6386
+Proxy stderr: Size: 10109
+Proxy stderr: ------Node 3 ends-----
+Proxy stderr: ------Node 4 starts-----
+Proxy stderr: Hostname: http://localhost:6387
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6387
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 4 ends-----
+Proxy stderr: ------Node 5 starts-----
+Proxy stderr: Hostname: http://localhost:6385
+Proxy stderr: Pathname: /random-text1.txt
+Proxy stderr: Port: 6385
+Proxy stderr: Size: 10109
+Proxy stderr: ------Node 5 ends-----
+Proxy stderr: ------Node 6 starts-----
+Proxy stderr: Hostname: http://localhost:6387
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6387
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 6 ends-----
+Proxy stderr: ------Node 7 starts-----
+Proxy stderr: Hostname: http://localhost:6387
+Proxy stderr: Pathname: /nothing.txt
+Proxy stderr: Port: 6387
+Proxy stderr: Size: 267
+Proxy stderr: ------Node 7 ends-----
+Proxy stderr: Checking for presence of request in cache
+Proxy stderr: GET /random-binary3.bin HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6387
+Proxy stderr: Request-ID: f8
+Proxy stderr: Response: Immediate
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: Calling check presence function
+Proxy stderr: Returned from check presence with present node (nil)
+Proxy stderr: Request not present in cache
+Proxy stderr: writing the request headers to server GET /random-binary3.bin HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:6387
+Proxy stderr: Request-ID: f8
+Proxy stderr: Response: Immediate
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: While loop entered
+Proxy stderr: entering loop to read response from server
+Proxy stderr: nread 8192 and response_size 24576
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 81920
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 90112
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 65536
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 73728
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 8192
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 16384
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 90112
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 98304
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 65536
+Proxy stderr: While loop entered
+Proxy stderr: nread 1806 and response_size 100110
+Proxy stderr: While loop entered
+Proxy stderr: nread 8192 and response_size 73728
+>check r1
+Request r1 yielded expected status 'ok'
+>check r2
+Request r2 yielded expected status 'ok'
+>check r3 404
+Request r3 yielded expected status 'not_found'
+>check r4
+ERROR: Request r4 generated status 'error'.  Expecting 'ok' (Socket closed after reading 89988/100000 bytes)
+>check r5
+ERROR: Request r5 generated status 'error'.  Expecting 'ok' (Socket closed after reading 73617/1000000 bytes)
+>check r6 404
+Request r6 yielded expected status 'not_found'
+>check r7 
+Request r7 yielded expected status 'ok'
+>check r8 
+ERROR: Request r8 generated status 'error'.  Expecting 'ok' (Socket closed after reading 73603/1000000 bytes)
+>check r9 404
+Request r9 yielded expected status 'not_found'
+>check f1
+Request f1 yielded expected status 'ok'
+>check f2
+ERROR: Request f2 generated status 'error'.  Expecting 'ok' (Socket closed after reading 40836/100000 bytes)
+>check f3 404
+Request f3 yielded expected status 'not_found'
+>check f4
+ERROR: Request f4 generated status 'error'.  Expecting 'ok' (Socket closed after reading 24452/100000 bytes)
+Too many errors.  Exiting
+ERROR COUNT = 5
