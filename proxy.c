@@ -158,6 +158,7 @@ void process_request(int connfd)
 		free(path);
 		return;
 	}
+	//converting def_port(int) to defport(string) since open_clientf requires a char *
 	sprintf(defport,"%d",def_port);
 	fprintf(stderr,"%s \n",request);
 	
