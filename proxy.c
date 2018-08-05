@@ -1,5 +1,23 @@
-/* Name: Sarthak Jain
-*  Andrew Id: sarthak3
+/* 
+* Name: Sarthak Jain
+* Andrew Id: sarthak3
+*/
+
+/*
+* The following code represents a proxy server. It means
+* the client's (browser) requests first go to this proxy
+* server which manipulates and forms a request to be sent 
+* to the actual server. On receiving response form server,
+* proxy sends it back to the client. So in a way, it acts
+* as an intermediary between client and the servers.
+*
+* The proxy also maintains a cache to store responses of some
+* requests for later use. It does so that future requests doesn't
+* need to be fetched from server and thus saving time. 
+* LRU policy is being used and I have used a doubly linked list
+* to represent cache. The head of this list stores most frequently
+* used request and tail the LRU. So eviction is done from tail and
+* insertion is done at start of list.
 */
 
 #include "csapp.h"
@@ -31,14 +49,16 @@ void client_error(int fd, char *cause, char *errnum, char *shortmsg, char *longm
 
 
 /* Function to handle SIGPIPE signals
-* I just printing handled statement by calling this function.
+* I am just printing caught statement by calling this function.
 */ 
 void SIGPIPE_HNDLR()
 {
     printf(" The SIGPIPE signal is caught!\n");
     return;
 }
-sem_t mutex,w;
+
+// variable to control access to critical section i.e. to cache
+sem_t mutex,w; 
 int main(int argc, char** argv)
 {
 	int listenfd,*connfdp;
@@ -60,8 +80,7 @@ int main(int argc, char** argv)
 	Sem_init(&mutex,0,1);
 	Sem_init(&w,0,1);
 	listenfd=Open_listenfd(argv[1]);
-	printf("Listening port for proxy is %s and open_listenfd returned %d \n",argv[1],listenfd);
-	printf("Entering while loop \n");	
+	
 	while(1)
 	{
 		clientlen=sizeof(struct sockaddr_storage);
@@ -74,7 +93,8 @@ int main(int argc, char** argv)
 }
 
 /* Thread routine 
-* We create a new thread to handle each new client
+* We create a new thread to handle requests from each new client.
+* We are detaching the threads so that they reap themselves.
 */
 void *thread(void* vargp)
 {
@@ -97,11 +117,15 @@ void *thread(void* vargp)
 * along with Host header fields.
 * It looks for a given port in the request otherwise uses default 80 port (given for HTTP)
 * It also appends 3 more headers: User-Agent, Connection and Proxy-Connection
-* to send a request to the server. 
+* to send a request to the server. Other header in client request are appended as it is.
+* 
+* We have made use of cache here to first look for the built request response
+* in the cache. If present we return response from cache.
+* Otherwise response is fetched from server and if response size is less than 
+* MAX_OBJECT_SIZE, that response is inserted in cache for later use.
 * 
 * The default http version is 1.0 irrespective of what version client requested for
 *
-* 
 */
 void process_request(int connfd)
 {
@@ -117,10 +141,13 @@ void process_request(int connfd)
 	char response[MAX_CACHE_SIZE];
 	strcpy(response,"");
 	int response_size=0;
+	
+	
 	cnode *present_node=NULL;
-	Rio_readinitb(&crio, connfd);
-	int found_in_cache=0;
+	int found_in_cache=0; //flag for if response found in cache
+	
 	// Create request hdrs to be sent to server
+	Rio_readinitb(&crio, connfd);
 	int isGet_rqst=create_requesthdrs(&crio, request, host, uri_without_path, path ,&def_port);
 	fprintf(stderr,"host %s uri %s def_port %d\n",host,uri_without_path,def_port);
 	if(!isGet_rqst)
@@ -128,10 +155,10 @@ void process_request(int connfd)
 		free(uri_without_path);
 		free(request);
 		free(host);
+		free(path);
 		return;
 	}
 	sprintf(defport,"%d",def_port);
-
 	fprintf(stderr,"%s \n",request);
 	
 	P(&mutex);
@@ -140,15 +167,10 @@ void process_request(int connfd)
 		P(&w);
 	V(&mutex);
 	present_node=check_presence_cache(uri_without_path,path,def_port);
-	fprintf(stderr,"Returned from check presence with present node %p\n",present_node);
 	if(present_node)
 	{
-		fprintf(stderr,"Request present in cache \n");
-		fprintf(stderr,"Calling delete node \n");
 		delete_node(present_node);
-		fprintf(stderr,"returned from delete node, calling insert \n");
 		insert_front(present_node);
-		fprintf(stderr,"returned from insert front");
 		if ((size_t)rio_writen(connfd,present_node->response,present_node->node_size) != present_node->node_size) 
 		{
 			unix_error("Rio_writen error");
@@ -162,6 +184,7 @@ void process_request(int connfd)
 	if(readcnt==0)
 		V(&w);
 	V(&mutex);
+	
 	if(found_in_cache)
 		return;
 	
@@ -175,10 +198,11 @@ void process_request(int connfd)
 		free(uri_without_path);
 		free(request);
 		free(host);
+		free(path);
 		return;
 	}
+	
 	Rio_readinitb(&srio, server_fd);
-	fprintf(stderr,"writing the request headers to server %s\n",request);
 	if ((size_t) rio_writen(server_fd, request, strlen(request)) != strlen(request)) 
 	{
         unix_error("Rio_writen error");
@@ -188,11 +212,12 @@ void process_request(int connfd)
 		free(uri_without_path);
 		free(request);
 		free(host);
+		free(path);
 		return;
     }
+	
 	ssize_t nread;
 	char temp[MAX_CACHE_SIZE];
-	fprintf(stderr,"entering loop to read response from server \n");
 	
 	while( (nread=Rio_readnb(&srio,temp,MAXLINE))!= 0 )
 	{
@@ -203,6 +228,7 @@ void process_request(int connfd)
 			free(uri_without_path);
 			free(request);
 			free(host);
+			free(path);
 			return;
 		}
 		if ((ssize_t) rio_writen(connfd,temp,nread) != nread) 
@@ -215,6 +241,9 @@ void process_request(int connfd)
 		if(response_size<=MAX_OBJECT_SIZE)
 			strcat(response,temp);
 	}
+	/*
+	* Check if response size appropriate for insertion into cache
+	*/ 
 	if(response_size<=MAX_OBJECT_SIZE)
 	{
 		cnode *new_node=create_node(uri_without_path,path,def_port,response,response_size);
@@ -222,26 +251,24 @@ void process_request(int connfd)
 		while(present_cache_size + response_size > MAX_CACHE_SIZE)
 			delete_LRU();
 		insert_front(new_node);
-		fprintf(stderr,"New request inserted in cache uri_w/o_path %s path %s port %d and size %d\n",uri_without_path,path,def_port,response_size);
-		fprintf(stderr,"total request in cache %d \n",rqst_in_cache);
-		fprintf(stderr,"total cache size %zu \n",present_cache_size);
 		V(&w);
 	}
 	Close(server_fd);
 	free(uri_without_path);
 	free(request);
 	free(host);
+	free(path);
 	return;
 }
 
-/* This function reads in the url entered by the user
+/* 
+* This function reads in the url entered by the user
 * and splices it into key-value format separating the 
 * host, uri, port.
 * 
 * Additionally it appends some more pre-defined headers:
 * User-Agent, Connection and Proxy-Connection apart from headers
 * that might already be in the input.
-* 
 */
 int create_requesthdrs(rio_t *rio, char *request, char *host, char *uri, char *path ,int *def_port)
 {
@@ -310,6 +337,7 @@ int create_requesthdrs(rio_t *rio, char *request, char *host, char *uri, char *p
 			}
 		}
 	}
+	
 	if(!host_passed_header)
 	{
 		sprintf(headerline,"Host: %s\r\n",host);
@@ -377,6 +405,7 @@ void get_host_port_header(char *value, char *host, int *port_in_header)
 	}
 }
 
+//helper function to check presence of a request in cache
 cnode * check_presence_cache(char *host,char *uri,int def_port)
 {
 	cnode *node=NULL;
