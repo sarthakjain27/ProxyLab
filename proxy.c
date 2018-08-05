@@ -219,7 +219,7 @@ void process_request(int connfd)
 	ssize_t nread;
 	char temp[MAX_CACHE_SIZE];
 	
-	while( (nread=Rio_readnb(&srio,temp,MAXLINE))!= 0 )
+	while( (nread=Rio_readnb(&srio,temp,MAX_OBJECT_SIZE))!= 0 )
 	{
 		fprintf(stderr,"While loop entered \n");
 		if( nread < 0 )
