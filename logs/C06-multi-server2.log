@@ -1,0 +1,301 @@
+>proxy temp/proxyProxy set up at localhost:29608
+>source '/afs/andrew.cmu.edu/usr18/sarthak3/proxylab-m18-sarthakjain27/tests/C06-multi-server2.cmd'># Make sure caches for different servers are not mixed
+>serve s1 s2
+Server s1 running at localhost:29609
+Server s2 running at localhost:29610
+>generate random-text1.txt 100K
+>generate random-text2.txt 100K
+>generate random-text3.txt 100K
+>request r1a random-text1.txt s1
+Client: Requesting '/random-text1.txt' from localhost:29609
+>request r2a random-text2.txt s1
+Client: Requesting '/random-text2.txt' from localhost:29609
+Proxy stderr: host localhost uri http://localhost:29609 def_port 29609
+Proxy stderr: GET /random-text1.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+>request r3a random-text3.txt s1
+Client: Requesting '/random-text3.txt' from localhost:29609
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:29609
+>delay 100
+Proxy stderr: Request-ID: r1a
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: Returned from check presence with present node (nil)
+Proxy stderr: Request not present in cache
+Proxy stderr: writing the request headers to server GET /random-text1.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:29609
+Proxy stderr: Request-ID: r1a
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: entering loop to read response from server
+Proxy stderr: host localhost uri http://localhost:29609 def_port 29609
+Proxy stderr: GET /random-text2.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:29609
+Proxy stderr: Request-ID: r2a
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: Returned from check presence with present node (nil)
+Proxy stderr: Request not present in cache
+Proxy stderr: writing the request headers to server GET /random-text2.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:29609
+Proxy stderr: Request-ID: r2a
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: entering loop to read response from server
+Proxy stderr: host localhost uri http://localhost:29609 def_port 29609
+Proxy stderr: GET /random-text3.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:29609
+Proxy stderr: Request-ID: r3a
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: Returned from check presence with present node (nil)
+Proxy stderr: Request not present in cache
+Proxy stderr: writing the request headers to server GET /random-text3.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:29609
+Proxy stderr: Request-ID: r3a
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: entering loop to read response from server
+>respond r3a r2a r1a
+Server responded to request r3a with status ok
+Server responded to request r2a with status ok
+Server responded to request r1a with status ok
+>delay 200
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: New request inserted in cache uri_w/o_path http://localhost:29609 path /random-text3.txt port 29609 and size 100111
+Proxy stderr: total request in cache 1
+Proxy stderr: total cache size 100111
+Proxy stderr: New request inserted in cache uri_w/o_path http://localhost:29609 path /random-text1.txt port 29609 and size 100111
+Proxy stderr: total request in cache 2
+Proxy stderr: total cache size 200222
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: New request inserted in cache uri_w/o_path http://localhost:29609 path /random-text2.txt port 29609 and size 100111
+Proxy stderr: total request in cache 3
+Proxy stderr: total cache size 300333
+>check r1a
+Request r1a yielded expected status 'ok'
+>check r2a
+Request r2a yielded expected status 'ok'
+>check r3a
+Request r3a yielded expected status 'ok'
+>delete random-text1.txt
+>delete random-text2.txt
+>delete random-text3.txt
+>generate random-text1.txt 99K
+>generate random-text2.txt 99K
+>generate random-text3.txt 99K
+>request r1b random-text1.txt s2
+Client: Requesting '/random-text1.txt' from localhost:29610
+>request r2b random-text2.txt s2
+Client: Requesting '/random-text2.txt' from localhost:29610
+Proxy stderr: host localhost uri http://localhost:29610 def_port 29610
+Proxy stderr: GET /random-text1.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+>request r3b random-text3.txt s2
+Client: Requesting '/random-text3.txt' from localhost:29610
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+>delay 100
+Proxy stderr: Host: localhost:29610
+Proxy stderr: Request-ID: r1b
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: Returned from check presence with present node (nil)
+Proxy stderr: Request not present in cache
+Proxy stderr: writing the request headers to server GET /random-text1.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:29610
+Proxy stderr: Request-ID: r1b
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: entering loop to read response from server
+Proxy stderr: host localhost uri http://localhost:29610 def_port 29610
+Proxy stderr: GET /random-text2.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:29610
+Proxy stderr: Request-ID: r2b
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: Returned from check presence with present node (nil)
+Proxy stderr: Request not present in cache
+Proxy stderr: writing the request headers to server GET /random-text2.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:29610
+Proxy stderr: Request-ID: r2b
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: entering loop to read response from server
+Proxy stderr: host localhost uri http://localhost:29610 def_port 29610
+Proxy stderr: GET /random-text3.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:29610
+Proxy stderr: Request-ID: r3b
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: Returned from check presence with present node (nil)
+Proxy stderr: Request not present in cache
+Proxy stderr: writing the request headers to server GET /random-text3.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:29610
+Proxy stderr: Request-ID: r3b
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: entering loop to read response from server
+>respond r1b r2b r3b
+Server responded to request r1b with status ok
+Server responded to request r2b with status ok
+Server responded to request r3b with status ok
+>delay 200
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: New request inserted in cache uri_w/o_path http://localhost:29610 path /random-text2.txt port 29610 and size 99110
+Proxy stderr: total request in cache 4
+Proxy stderr: total cache size 399443
+Proxy stderr: New request inserted in cache uri_w/o_path http://localhost:29610 path /random-text1.txt port 29610 and size 99110
+Proxy stderr: total request in cache 5
+Proxy stderr: total cache size 498553
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: While loop entered
+Proxy stderr: New request inserted in cache uri_w/o_path http://localhost:29610 path /random-text3.txt port 29610 and size 99110
+Proxy stderr: total request in cache 6
+Proxy stderr: total cache size 597663
+>check r1b
+Request r1b yielded expected status 'ok'
+>check r2b
+Request r2b yielded expected status 'ok'
+>check r3b
+Request r3b yielded expected status 'ok'
+># Check for caching
+>request r1c random-text1.txt s2
+Client: Requesting '/random-text1.txt' from localhost:29610
+>delay 200
+Proxy stderr: host localhost uri http://localhost:29610 def_port 29610
+Proxy stderr: GET /random-text1.txt HTTP/1.0
+Proxy stderr: User Agent: Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20180601 Firefox/45.0
+Proxy stderr: Connection: close
+Proxy stderr: Proxy-Connection: close
+Proxy stderr: Host: localhost:29610
+Proxy stderr: Request-ID: r1c
+Proxy stderr: Response: Deferred
+Proxy stderr: 
+Proxy stderr: 
+Proxy stderr: Returned from check presence with present node 0x7fe824024a70
+Proxy stderr: Request present in cache
+Proxy stderr: Calling delete node
+Proxy stderr: returned from delete node, calling insert
+>check r1c
+Request r1c yielded expected status 'ok'
+>quit
+Proxy stderr: returned from insert front
+ALL TESTS PASSED
