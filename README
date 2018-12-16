@@ -5,9 +5,10 @@ the response to the client.
 First part of code deals with writing a basic web proxy server to accept incoming connections, read and parse requests, forward requests to web servers,
 read the servers’ responses, and forward those responses to the corresponding clients.
 
-Second part deals with handling multiple concurrent connections.
+Second part deals with handling multiple concurrent connections. This was implemented using Pthreads, where each threads was working in parallel
+to serve each request. 
 
-Third part deals with adding caching to the proxy using a simple main memory cache of recently accessed web content.
+Third part deals with adding caching to the proxy using a simple main memory cache of recently accessed web content. LRU was used for eviction
 
 This directory contains the files you will need for the CS:APP Proxy
 Lab.
