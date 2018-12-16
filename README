@@ -1,9 +1,13 @@
-####################################################################
-# CS:APP Proxy Lab
-#
-# Student Source Files
-#
-####################################################################
+When a web browser uses a proxy, it contacts the proxy instead of communicating directly with the web
+server; the proxy forwards its client’s request to the web server, reads the server’s response, then forwards
+the response to the client.
+
+First part of code deals with writing a basic web proxy server to accept incoming connections, read and parse requests, forward requests to web servers,
+read the servers’ responses, and forward those responses to the corresponding clients.
+
+Second part deals with handling multiple concurrent connections.
+
+Third part deals with adding caching to the proxy using a simple main memory cache of recently accessed web content.
 
 This directory contains the files you will need for the CS:APP Proxy
 Lab.
